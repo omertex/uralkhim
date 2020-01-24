@@ -53,7 +53,7 @@ class DefaultLayout extends Component {
           </AppSidebar>
           <main className="main">
             {/*<AppBreadcrumb appRoutes={routes} router={router}/>*/}
-            <Container fluid>
+            {/*<Container fluid>*/}
               <Suspense fallback={this.loading()}>
                 <Switch>
                   {routes.map((route, idx) => {
@@ -71,7 +71,7 @@ class DefaultLayout extends Component {
                   <Redirect from="/" to="/dashboard" />
                 </Switch>
               </Suspense>
-            </Container>
+            {/*</Container>*/}
           </main>
           <AppAside fixed>
             <Suspense fallback={this.loading()}>
