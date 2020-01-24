@@ -1,1 +1,7 @@
+.aside-menu.aside-menu {
+  width: 500px;
+}
 
+html:not([dir="rtl"]) .aside-menu.aside-menu {
+  margin-right: -500px;
+}

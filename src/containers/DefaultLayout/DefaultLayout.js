@@ -36,11 +36,11 @@ class DefaultLayout extends Component {
   render() {
     return (
       <div className="app">
-        <AppHeader fixed>
-          <Suspense  fallback={this.loading()}>
-            <DefaultHeader onLogout={e=>this.signOut(e)}/>
-          </Suspense>
-        </AppHeader>
+        {/*<AppHeader fixed>*/}
+        {/*  <Suspense  fallback={this.loading()}>*/}
+        {/*    <DefaultHeader onLogout={e=>this.signOut(e)}/>*/}
+        {/*  </Suspense>*/}
+        {/*</AppHeader>*/}
         <div className="app-body">
           <AppSidebar fixed display="lg">
             <AppSidebarHeader />
@@ -52,7 +52,7 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <main className="main">
-            <AppBreadcrumb appRoutes={routes} router={router}/>
+            {/*<AppBreadcrumb appRoutes={routes} router={router}/>*/}
             <Container fluid>
               <Suspense fallback={this.loading()}>
                 <Switch>
@@ -79,11 +79,11 @@ class DefaultLayout extends Component {
             </Suspense>
           </AppAside>
         </div>
-        <AppFooter>
-          <Suspense fallback={this.loading()}>
-            <DefaultFooter />
-          </Suspense>
-        </AppFooter>
+        {/*<AppFooter>*/}
+        {/*  <Suspense fallback={this.loading()}>*/}
+        {/*    <DefaultFooter />*/}
+        {/*  </Suspense>*/}
+        {/*</AppFooter>*/}
       </div>
     );
   }
