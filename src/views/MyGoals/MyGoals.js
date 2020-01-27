@@ -30,8 +30,29 @@ export const GET_GOALS = gql`
   }
 `;
 
+export const GET_GOALS_SCHEMA = gql`
+ {
+    entity_definitions(where: {name: {_eq: "goal"}}) {
+      id,
+      name,
+      schema
+    }
+ }
+`;
+
 const MyGoals = () => {
   const [aside, setAside] = React.useState({visible: false, idx: 0});
+
+  const {loading: goalsLoading, error: goalsError, data: goalsData} = useQuery(GET_GOALS);
+  const {loading: schemaLoading, error: schemaError, data: schemaData} = useQuery(GET_GOALS_SCHEMA);
+
+  const getProperty = ({name, idx}) => {
+    const properties = schemaData.entity_definitions[0].schema.properties;
+    return properties[name].enumNames[idx];
+  };
+
+  console.log(goalsData, schemaData);
+
   const showAside = (idx) => {
     setAside({visible: true, idx});
   }
@@ -39,41 +60,37 @@ const MyGoals = () => {
     setAside({visible: false, idx: 0});
   }
 
-  const {loading, error, data} = useQuery(GET_GOALS);
-  console.log('loading', loading);
-  console.log('data', data);
-
   return (
     <div style={localStyles.contentContainer}>
       <Transition in={aside.visible} timeout={250}>
         {(state) => <Aside close={closeAside} state={state}>
-          {aside.visible && !loading &&
+          {!goalsLoading && !schemaLoading &&
           (
             <>
             <div className="p-3">
-              <div className="pt-4"><span className="badge badge-primary">В работе</span></div>
-              <div className="mt-4 h3 font-weight-bold">Снизить ПОС на 20%</div>
+              <div className="pt-4"><span className="badge badge-primary">{goalsData.goals[aside.idx].state}</span></div>
+              <div className="mt-4 h3 font-weight-bold">{goalsData.goals[aside.idx].description}</div>
               <button type="button" className="btn btn-info">Делегировать</button>
               <button type="button" className="btn btn-info ml-2">Декомпозировать</button>
             </div>
             <div className="dropdown-divider"></div>
               <div className="p-3">
               <div className="font-weight-bold">Основная информация</div>
-              <div>категория</div>
-              <div>категория</div>
-              <div>Описание цели</div>
-              <div>{data.goals[aside.idx].description}</div>
-              <div>Метод подсчета</div>
-              <div>Источник подтверждения</div>
-              <div>Вес цели</div>
-              <div>{data.goals[aside.idx].weight}%</div>
-              <div>Период</div>
+              <div className="text-secondary mt-4">категория</div>
+              <div className="text-secondary mt-4">Тип цели</div>
+              <div className="text-secondary mt-4">Описание цели</div>
+              <div>{goalsData.goals[aside.idx].description}</div>
+              <div className="text-secondary mt-4">Метод подсчета</div>
+              <div className="text-secondary mt-4">Источник подтверждения</div>
+              <div className="text-secondary mt-4">Вес цели</div>
+              <div>{goalsData.goals[aside.idx].weight}%</div>
+              <div className="text-secondary mt-4">Период</div>
             </div>
             </>
           )}
         </Aside>}
       </Transition>
-      <div className="row h2 font-weight-bold mb-4">Мои цели</div>
+      <div className="row h2 font-weight-bold m-4">Мои цели</div>
       <div className="row h6">
         <div className="col-2">Статус</div>
         <div className="col-3">Название</div>
@@ -82,11 +99,11 @@ const MyGoals = () => {
         <div className="col-2">Дочерние цели</div>
         <div className="col-1">Вес цели</div>
       </div>
-      {data && data.goals.map((goal, idx) => (
+      {!goalsLoading && !schemaLoading && goalsData.goals.map((goal, idx) => (
         <div className="card flex-row align-items-center h6" style={localStyles.card} onClick={() => showAside(idx)} key={goal.id}>
           <div className="col-2"><span className="badge badge-primary">{goal.state}</span></div>
           <div className="col-3">{goal.description}</div>
-          <div className="col-2">{goal.category}</div>
+          <div className="col-2">{getProperty({name: "category", idx: goal.category})}</div>
           <div className="col-2">{goal.issued_by}</div>
           <div className="col-2">0</div>
           <div className="col-1 font-weight-bold">{goal.weight}%</div>
