@@ -9,6 +9,7 @@ export const Aside = styled.div`
   margin-left: auto;
   transition: 0.25s;
   margin-right: ${({state}) => (state === "entering" || state === "entered" ? 0 : -500)}px;
+  overflow-y: scroll;
 `;
 
 export const Overlay = styled.div`
