@@ -16,8 +16,10 @@ class Login extends Component {
 
   loginHandler = async () => {
     const [err, loginInfo] = await loginVerification({userName: this.state.userName, password: this.state.password});
+    const parsedToken = JSON.parse(atob(loginInfo.accessToken.split('.')[1]));
+    const { "https://hasura.io/jwt/claims": { "x-hasura-default-role": role} } = parsedToken;
     console.log('err', err);
-    console.log('loginInfo', loginInfo);
+    console.log('loginInfo', loginInfo, role);
     if (!err && loginInfo) {
       sessionStorage.setItem('accessToken', loginInfo.accessToken);
       this.context.setIsAuth(true);
