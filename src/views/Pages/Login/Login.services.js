@@ -1,6 +1,6 @@
 export const loginVerification = async ({userName, password}) => {
   try {
-    const res = await fetch('https://scalaxi.herokuapp.com/login', {
+    const res = await fetch('https://scalaxi-auth.herokuapp.com/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=utf-8'

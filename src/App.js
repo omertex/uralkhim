@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
-// import { renderRoutes } from 'react-router-config';
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './App.scss';
 import {AuthContext} from "./AuthContext/AuthContext";
+import ApolloContext from "./ApolloContext/ApolloContext";
+
 
 const loading = () => <div className="animated fadeIn pt-3 text-center">Loading...</div>;
 
@@ -33,14 +34,14 @@ class App extends Component {
   RouteAuthCheck = ({component: Component, ...rest}) => (
     <Route
       {...rest}
-      render={props => this.state.isAuth ? (<Component {...props} />) : (<Redirect to={{pathname: "/login", state: {from: props.location}}} />)}
+      render={props => this.state.isAuth ? (<ApolloContext><Component {...props} /></ApolloContext>) : (<Redirect to={{pathname: "/login", state: {from: props.location}}} />)}
     />
   );
 
   render() {
     return (
       <AuthContext.Provider value={this.state}>
-        <HashRouter>
+        <BrowserRouter>
             <React.Suspense fallback={loading()}>
               <Switch>
                 <Route exact path="/login" name="Login Page" render={props => <Login {...props}/>} />
@@ -51,7 +52,7 @@ class App extends Component {
                 <this.RouteAuthCheck path="/" name="Home" component={DefaultLayout} />
               </Switch>
             </React.Suspense>
-        </HashRouter>
+        </BrowserRouter>
       </AuthContext.Provider>
     );
   }

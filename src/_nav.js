@@ -7,7 +7,7 @@ export default {
     },
     {
       name: 'Мои цели',
-      url: '/my-targets',
+      url: '/my-goals',
       icon: 'icon-puzzle',
     },
     {
