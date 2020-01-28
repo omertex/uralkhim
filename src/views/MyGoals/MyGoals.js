@@ -3,6 +3,7 @@ import Aside from "../../shared_components/Aside/Aside";
 import { Transition } from "react-transition-group"
 import gql from "graphql-tag";
 import { useQuery } from '@apollo/react-hooks';
+import Form from "react-jsonschema-form";
 
 const localStyles = {
   card: {
@@ -104,29 +105,30 @@ const MyGoals = () => {
   );
 
   const NewGoal = () => (
-    <form onSubmit={addGoal}>
-      <div className="p-3">
-        <div className="pt-4"><span className="badge badge-primary">{goalsData.goals[aside.idx].state}</span></div>
-        <div className="text-secondary mt-4">Название</div>
-        <div className="h3 font-weight-bold"><input type="text"></input></div>
-        <button type="button" className="btn btn-info">Делегировать</button>
-        <button type="button" className="btn btn-info ml-2">Декомпозировать</button>
-      </div>
-      <div className="dropdown-divider"></div>
-      <div className="p-3">
-        <div className="font-weight-bold">Основная информация</div>
-        <div className="text-secondary mt-4">категория</div>
-        <div className="text-secondary mt-4">Тип цели</div>
-        <div className="text-secondary mt-4">Описание цели</div>
-        <div><input type="text"></input></div>
-        <div className="text-secondary mt-4">Метод подсчета</div>
-        <div className="text-secondary mt-4">Источник подтверждения</div>
-        <div className="text-secondary mt-4">Вес цели</div>
-        <div><input type="text"></input>%</div>
-        <div className="text-secondary mt-4">Период</div>
-      </div>
-      <input className="p-2 m-3" type="submit" value="Добавить" />
-    </form>
+    <Form className="p-5" schema={schemaData.entity_definitions[0].schema} uiSchema={uiSchemaData.ui_schemas[0].schema} />
+    // <form onSubmit={addGoal}>
+    //   <div className="p-3">
+    //     <div className="pt-4"><span className="badge badge-primary">{goalsData.goals[aside.idx].state}</span></div>
+    //     <div className="text-secondary mt-4">Название</div>
+    //     <div className="h3 font-weight-bold"><input type="text"></input></div>
+    //     <button type="button" className="btn btn-info">Делегировать</button>
+    //     <button type="button" className="btn btn-info ml-2">Декомпозировать</button>
+    //   </div>
+    //   <div className="dropdown-divider"></div>
+    //   <div className="p-3">
+    //     <div className="font-weight-bold">Основная информация</div>
+    //     <div className="text-secondary mt-4">категория</div>
+    //     <div className="text-secondary mt-4">Тип цели</div>
+    //     <div className="text-secondary mt-4">Описание цели</div>
+    //     <div><input type="text"></input></div>
+    //     <div className="text-secondary mt-4">Метод подсчета</div>
+    //     <div className="text-secondary mt-4">Источник подтверждения</div>
+    //     <div className="text-secondary mt-4">Вес цели</div>
+    //     <div><input type="text"></input>%</div>
+    //     <div className="text-secondary mt-4">Период</div>
+    //   </div>
+    //   <input className="p-2 m-3" type="submit" value="Добавить" />
+    // </form>
   );
 
   return (
@@ -137,7 +139,7 @@ const MyGoals = () => {
           (aside.isCreating ? <NewGoal /> : <ViewGoal/>)}
         </Aside>}
       </Transition>
-      <div className="row h2 font-weight-bold m-4">Мои цели</div>
+      <div className="row h2 font-weight-bold p-4">Мои цели</div>
       <div className="row h6">
         <div className="col-2">Статус</div>
         <div className="col-3">Название</div>
