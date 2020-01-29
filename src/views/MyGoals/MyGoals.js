@@ -125,6 +125,7 @@ const MyGoals = () => {
     setIsDialogOpen(false);
   };
   const onSubmit = ({ formData }, event) => {
+    closeDialog();
     event.preventDefault();
     console.log('formData', formData);
     addGoal({
