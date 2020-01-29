@@ -7,11 +7,10 @@ const ApolloContext = ({children}) => {
   const [client, setClient] = React.useState(null);
   const authContext = React.useContext(AuthContext);
   React.useEffect(() => {
-    console.log('effect')
     if (authContext.isAuth) {
       const accessToken = sessionStorage.getItem("accessToken");
       setClient(new ApolloClient({
-        uri: "https://scalaxi-graphql.herokuapp.com/v1/graphql",
+        uri: "https://scalaxi-hasura.herokuapp.com/v1/graphql",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         }

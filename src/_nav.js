@@ -3,38 +3,33 @@ export default {
     {
       name: 'Цели подчиненных',
       url: '/sub-targets',
-      icon: 'icon-puzzle',
+      icon: 'icon-pie-chart',
     },
     {
       name: 'Мои цели',
       url: '/my-goals',
-      icon: 'icon-puzzle',
+      icon: 'icon-layers',
     },
     {
       name: 'Дэшборд',
       url: '/dashboard',
-      icon: 'icon-puzzle',
-    },
-    {
-      name: 'Информация',
-      url: '/information',
-      icon: 'icon-puzzle',
+      icon: 'icon-list',
     },
     {
       name: 'Помощь',
       class: 'mt-auto',
       url: '/help',
-      icon: 'icon-puzzle',
+      icon: 'icon-info',
     },
     {
       name: 'Уведомления',
       url: '/notifications',
-      icon: 'icon-puzzle',
+      icon: 'icon-bell',
     },
     {
       name: 'Выход',
       url: '/logout',
-      icon: 'icon-puzzle',
+      icon: 'icon-arrow-left',
     }
   ],
 };

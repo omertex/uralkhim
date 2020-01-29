@@ -5,3 +5,17 @@
 html:not([dir="rtl"]) .aside-menu.aside-menu {
   margin-right: -500px;
 }
+
+.sidebar.sidebar {
+  background-color: #fff;
+}
+
+.nav-link.nav-link.nav-link {
+  color: #7f90a6;
+}
+
+.nav-link.nav-link.nav-link.active {
+  color: #000;
+  background-color: unset;
+  border-right: 1px solid blue;
+}
