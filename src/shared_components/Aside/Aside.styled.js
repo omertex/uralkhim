@@ -4,19 +4,19 @@ import CleanButton from "../CleanButton/CleanButton";
 export const Aside = styled.div`
   position: relative;
   width: 500px;
-  height: 100vh;
+  height: 100%;
   background-color: #fff;
   margin-left: auto;
   transition: 0.25s;
   margin-right: ${({state}) => (state === "entering" || state === "entered" ? 0 : -500)}px;
-  overflow-y: scroll;
+  overflow-y: auto;
 `;
 
 export const Overlay = styled.div`
   position: absolute;
   right: 0;
-  width: 80%;
-  height: 100vh;
+  top: 0;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 1;
   width: ${({state}) => state === "exited" ? 0 : '100%'};

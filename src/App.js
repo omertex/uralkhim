@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './App.scss';
-import {AuthContext} from "./AuthContext/AuthContext";
-import ApolloContext from "./ApolloContext/ApolloContext";
+import {AuthContext} from './AuthContext/AuthContext';
+import ApolloContext from './ApolloContext/ApolloContext';
+import Normalize from 'react-normalize';
 
 
 const loading = () => <div className="animated fadeIn pt-3 text-center">Loading...</div>;
 
 // Containers
-const DefaultLayout = React.lazy(() => import('./containers/DefaultLayout'));
+const DefaultLayout = React.lazy(() => import('./shared_components/DefaultLayout/DefaultLayout'));
 
 // Pages
 const Login = React.lazy(() => import('./views/Pages/Login'));
@@ -41,6 +42,7 @@ class App extends Component {
   render() {
     return (
       <AuthContext.Provider value={this.state}>
+        <Normalize />
         <BrowserRouter>
             <React.Suspense fallback={loading()}>
               <Switch>

@@ -1,5 +1,5 @@
-import React from "react";
-import * as Styled from "./Aside.styled.js";
+import React from 'react';
+import * as Styled from './Aside.styled.js';
 
 
 const Aside = ({children, close, state}) => (
