@@ -143,9 +143,7 @@ const MyGoals = () => {
     <>
       <div className="p-3">
         <div className="pt-4">
-          <span className="badge badge-primary">
-            {goalsData.goals[aside.idx].state}
-          </span>
+          <Badge variant={goalsData.goals[aside.idx].state} />
         </div>
         <div className="mt-4 h3 font-weight-bold">
           {goalsData.goals[aside.idx].description}
@@ -161,6 +159,7 @@ const MyGoals = () => {
       <div className="p-3">
         <div className="font-weight-bold">Основная информация</div>
         <div className="text-secondary mt-4">категория</div>
+        <div>{goalsData.goals[aside.idx].category}</div>
         <div className="text-secondary mt-4">Тип цели</div>
         <div className="text-secondary mt-4">Описание цели</div>
         <div>{goalsData.goals[aside.idx].description}</div>
