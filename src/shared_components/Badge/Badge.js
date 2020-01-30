@@ -3,7 +3,7 @@ import * as Styled from './Badge.styled';
 
 const VARIANTS = {
   'in_review': 'На ознакомлении',
-  'draft': 'Драфт'
+  'draft': 'Черновик'
 }
 
 const Badge = ({variant}) => (
