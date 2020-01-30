@@ -7,7 +7,7 @@ const badgeColor = variant => {
     case 'in_progress':
       return '#05a9af';
     case 'draft':
-      return '#05a9af';
+      return '#374455';
   }
 }
 
@@ -18,7 +18,7 @@ const badgeBGColor = variant => {
     case 'in_progress':
       return '#d1f3f4';
     case 'draft':
-      return '#d1f3f4';
+      return '#aeb4ba';
   }
 }
 
