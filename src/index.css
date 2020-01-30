@@ -19,3 +19,7 @@ html:not([dir="rtl"]) .aside-menu.aside-menu {
   background-color: unset;
   border-right: 1px solid blue;
 }
+
+.hidden {
+  display: none;
+}
