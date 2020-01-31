@@ -4,7 +4,7 @@ import { Transition } from 'react-transition-group';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import Form from 'react-jsonschema-form';
-import * as Styled from './MyGoals.styled';
+import * as Styled from './SubrordinatesGoals.styled';
 import Badge from '../../shared_components/Badge/Badge';
 import Dialog from '../../shared_components/Dialog/Dialog';
 import { BtnSecondary } from '../../shared_components/Buttons/Buttons.styled';
@@ -14,19 +14,23 @@ import {
   BtnSecondaryLarge
 } from '../../shared_components/Buttons/Buttons.styled';
 
-export const GET_GOALS = gql`
-  {
-    goals {
+const GET_GOALS = gql`
+  query getSubs($subs: [String!]) {
+    goals(where: { delegated_to_id: { _in: $subs } }) {
       id
       category
       description
+      delegated_to {
+        id,
+        fullName
+      }
       weight
       state
     }
   }
 `;
 
-export const GET_GOALS_SCHEMA = gql`
+const GET_GOALS_SCHEMA = gql`
   {
     entity_definitions(where: { name: { _eq: "goal" } }) {
       id
@@ -36,7 +40,7 @@ export const GET_GOALS_SCHEMA = gql`
   }
 `;
 
-export const GET_GOALS_UI_SCHEMA = gql`
+const GET_GOALS_UI_SCHEMA = gql`
   {
     ui_schemas(
       where: {
@@ -51,32 +55,7 @@ export const GET_GOALS_UI_SCHEMA = gql`
   }
 `;
 
-const ADD_GOAL = gql`
-  mutation InsertGoal(
-    $date_from: date
-    $date_to: date
-    $description: String
-    $type: smallint
-    $weight: smallint
-  ) {
-    insert_goals(
-      objects: {
-        verification_method: "Яндекс метрика"
-        date_from: $date_from
-        date_to: $date_to
-        description: $description
-        type: $type
-        weight: $weight
-      }
-    ) {
-      returning {
-        id
-      }
-    }
-  }
-`;
-
-export const GET_SUBORDINATES = gql`
+const GET_SUBORDINATES = gql`
   query getSubordinates($id: Int) {
     subordinates(id: $id) {
       id
@@ -85,7 +64,7 @@ export const GET_SUBORDINATES = gql`
   }
 `;
 
-const MyGoals = ({ user }) => {
+const SubordinatesGoals = ({ user }) => {
   const [aside, setAside] = React.useState({
     visible: false,
     idx: 0,
@@ -106,11 +85,15 @@ const MyGoals = ({ user }) => {
     subordinatesData
   );
 
+  const subsArray = subordinatesData.subordinates.map(item => item.id);
+  console.log('subsArray', subsArray);
   const {
     loading: goalsLoading,
     error: goalsError,
     data: goalsData
-  } = useQuery(GET_GOALS);
+  } = useQuery(GET_GOALS, { variables: {subs: subsArray} });
+  console.log('Goals!!!!', goalsLoading, goalsError, goalsData);
+
   const {
     loading: schemaLoading,
     error: schemaError,
@@ -130,8 +113,6 @@ const MyGoals = ({ user }) => {
     uiSchemaData &&
     uiSchemaData.ui_schemas.length;
   const isLoading = goalsLoading || schemaLoading || uiSchemaLoading;
-
-  const [addGoal, { data }] = useMutation(ADD_GOAL);
 
   const getProperty = ({ name, idx }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
@@ -155,25 +136,6 @@ const MyGoals = ({ user }) => {
   const onDelegate = () => {
     setIsDelegateDialogOpen(true);
   };
-  const onDelegateSubmit = ({ formData }, event) => {
-    setIsDelegateDialogOpen(false);
-    event.preventDefault();
-    console.log('formData', formData);
-  };
-  const onSubmit = ({ formData }, event) => {
-    closeDialog();
-    event.preventDefault();
-    console.log('formData', formData);
-    addGoal({
-      variables: {
-        type: formData.type,
-        date_from: formData.period.from,
-        date_to: formData.period.to,
-        description: formData.description,
-        weight: +formData.weight
-      }
-    }).then(res => console.log('res', res));
-  };
 
   const ViewGoal = () => (
     <>
@@ -186,7 +148,7 @@ const MyGoals = ({ user }) => {
         </div>
         <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
       </div>
-      <div className="dropdown-divider"></div>
+      <div className="dropdown-divider" />
       <div className="p-3">
         <div className="font-weight-bold">Основная информация</div>
         <div className="text-secondary mt-4">категория</div>
@@ -203,86 +165,14 @@ const MyGoals = ({ user }) => {
     </>
   );
 
-  const NewGoalForm = () => (
-    <Styled.DialogContent>
-      <Styled.DialogHeader>Создание цели</Styled.DialogHeader>
-      <Styled.DialogForm>
-        <Form
-          schema={schemaData.entity_definitions[0].schema}
-          uiSchema={uiSchemaData.ui_schemas[0].schema}
-          onSubmit={onSubmit}
-        >
-          <Styled.DialogBtns>
-            <Styled.DialogCancel
-              type="button"
-              onClick={() => {
-                setIsDialogOpen(false);
-              }}
-            >
-              Отмена
-            </Styled.DialogCancel>
-            <Styled.DialogSubmit type="submit">Сохранить</Styled.DialogSubmit>
-          </Styled.DialogBtns>
-        </Form>
-      </Styled.DialogForm>
-    </Styled.DialogContent>
-  );
-
-  const DelegateForm = () => {
-    let enumArray = [];
-    let enumNamesArray = [];
-    subordinatesData.subordinates.forEach((item) => {
-      enumArray.push(item.id);
-      enumNamesArray.push(item.fullName);
-    });
-
-    const schema = {
-      type: 'object',
-      properties: {
-        subordinateEnum: {
-          type: 'number',
-          title: 'Сотрудник',
-          enum: enumArray,
-          enumNames: enumNamesArray
-        },
-        weight: {
-          type: 'number',
-          title: 'Вес цели'
-        }
-      }
-    };
-
-    return (
-      <Styled.DialogContent>
-        <Styled.DialogHeader>Делегирование цели</Styled.DialogHeader>
-        <Styled.DialogForm>
-          <Form
-            schema={schema}
-            onSubmit={onDelegateSubmit}
-          >
-            <Styled.DialogBtns>
-              <BtnSecondaryLarge>Отмена</BtnSecondaryLarge>
-              <BtnPrimaryLarge type="submit">Делегировать</BtnPrimaryLarge>
-            </Styled.DialogBtns>
-          </Form>
-        </Styled.DialogForm>
-      </Styled.DialogContent>
-    );
-  };
-
   return (
     <Styled.Content>
-      <Dialog isOpen={isDialogOpen} close={closeDialog}>
-        {!isLoading && isData && <NewGoalForm />}
-      </Dialog>
       <Dialog
         isOpen={isDelegateDialogOpen}
         close={() => {
           setIsDelegateDialogOpen(false);
         }}
-      >
-        {!subordinatesLoading && subordinatesData && <DelegateForm />}
-      </Dialog>
+      ></Dialog>
       <Transition in={aside.visible} timeout={250}>
         {state => (
           <Aside close={closeAside} state={state}>
@@ -295,9 +185,8 @@ const MyGoals = ({ user }) => {
         <Styled.TextGray className="col-2">Статус</Styled.TextGray>
         <Styled.TextGray className="col-3">Название</Styled.TextGray>
         <Styled.TextGray className="col-2">Категория</Styled.TextGray>
-        <Styled.TextGray className="col-2">Согласующие</Styled.TextGray>
-        <Styled.TextGray className="col-2">Дочерние цели</Styled.TextGray>
-        <Styled.TextGray className="col-1">Вес цели</Styled.TextGray>
+        <Styled.TextGray className="col-3">Сотрудник</Styled.TextGray>
+        <Styled.TextGray className="col-2">Вес цели</Styled.TextGray>
       </Styled.Header>
       {!isLoading &&
         isData &&
@@ -310,14 +199,10 @@ const MyGoals = ({ user }) => {
             <div className="col-2">
               {getProperty({ name: 'category', idx: goal.category })}
             </div>
-            <div className="col-2">{goal.issued_by}</div>
-            <div className="col-2">0</div>
-            <div className="col-1 font-weight-bold">{goal.weight}%</div>
+            <div className="col-3">{goal.delegated_to.fullName}</div>
+            <div className="col-2 font-weight-bold">{goal.weight}%</div>
           </Styled.Card>
         ))}
-      <Styled.ButtonAdd onClick={showDialogCreate}>
-        + Создать персональную цель
-      </Styled.ButtonAdd>
     </Styled.Content>
   );
 };
@@ -328,4 +213,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(MyGoals);
+export default connect(mapStateToProps)(SubordinatesGoals);

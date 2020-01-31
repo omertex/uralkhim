@@ -23,3 +23,11 @@ html:not([dir="rtl"]) .aside-menu.aside-menu {
 .hidden {
   display: none;
 }
+
+.app-body.app-body {
+  margin-top: unset;
+}
+
+body {
+  background-color: #f4f6f8 !important;
+}
