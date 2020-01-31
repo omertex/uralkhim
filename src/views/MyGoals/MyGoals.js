@@ -15,8 +15,8 @@ import {
 } from '../../shared_components/Buttons/Buttons.styled';
 
 export const GET_GOALS = gql`
-  {
-    goals {
+  query getGoals($id: String) {
+    goals(where: {delegated_to_id: {_eq: $id}}) {
       id
       category
       description
@@ -76,11 +76,23 @@ const ADD_GOAL = gql`
   }
 `;
 
-export const GET_SUBORDINATES = gql`
+const GET_SUBORDINATES = gql`
   query getSubordinates($id: Int) {
     subordinates(id: $id) {
       id
       fullName
+    }
+  }
+`;
+
+const DELEGATE_GOAL = gql`
+  mutation doGoalAction($data: jsonb, $goalId: Int) {
+    insert_goal_actions(
+      objects: { goal_id: $goalId, name: "delegate", data: $data }
+    ) {
+      returning {
+        id
+      }
     }
   }
 `;
@@ -110,7 +122,7 @@ const MyGoals = ({ user }) => {
     loading: goalsLoading,
     error: goalsError,
     data: goalsData
-  } = useQuery(GET_GOALS);
+  } = useQuery(GET_GOALS, { variables: { id: user.id.toString() } });
   const {
     loading: schemaLoading,
     error: schemaError,
@@ -131,7 +143,8 @@ const MyGoals = ({ user }) => {
     uiSchemaData.ui_schemas.length;
   const isLoading = goalsLoading || schemaLoading || uiSchemaLoading;
 
-  const [addGoal, { data }] = useMutation(ADD_GOAL);
+  const [addGoal, { addGoalData }] = useMutation(ADD_GOAL);
+  const [delegateGoal, { delegateGoalData }] = useMutation(DELEGATE_GOAL);
 
   const getProperty = ({ name, idx }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
@@ -158,7 +171,17 @@ const MyGoals = ({ user }) => {
   const onDelegateSubmit = ({ formData }, event) => {
     setIsDelegateDialogOpen(false);
     event.preventDefault();
-    console.log('formData', formData);
+    console.log('onDelegateSubmit formData', formData);
+    setIsDelegateDialogOpen(false);
+    delegateGoal({
+      variables: {
+        data: {
+          delegated_to_id: formData.subordinateEnum.toString(),
+          weight: formData.weight
+        },
+        goalId: goalsData.goals[aside.idx].id
+      }
+    });
   };
   const onSubmit = ({ formData }, event) => {
     closeDialog();
@@ -231,8 +254,8 @@ const MyGoals = ({ user }) => {
   const DelegateForm = () => {
     let enumArray = [];
     let enumNamesArray = [];
-    subordinatesData.subordinates.forEach((item) => {
-      enumArray.push(item.id);
+    subordinatesData.subordinates.forEach(item => {
+      enumArray.push(+item.id);
       enumNamesArray.push(item.fullName);
     });
 
@@ -259,6 +282,7 @@ const MyGoals = ({ user }) => {
           <Form
             schema={schema}
             onSubmit={onDelegateSubmit}
+            idPrefix={'delegate_'}
           >
             <Styled.DialogBtns>
               <BtnSecondaryLarge>Отмена</BtnSecondaryLarge>
