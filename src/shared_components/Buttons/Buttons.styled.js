@@ -11,6 +11,11 @@ const DefaultButton = styled.button`
   padding: 0 15px;
 `;
 
+export const BtnPrimary = styled(DefaultButton)`
+  color: #fff;
+  background-color: #1348cf;
+`;
+
 export const BtnSecondary = styled(DefaultButton)`
   color: #1b2839;
   background-color: #e9eff4;

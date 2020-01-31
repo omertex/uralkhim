@@ -7,19 +7,25 @@ import Form from 'react-jsonschema-form';
 import * as Styled from './MyGoals.styled';
 import Badge from '../../shared_components/Badge/Badge';
 import Dialog from '../../shared_components/Dialog/Dialog';
-import { BtnSecondary } from '../../shared_components/Buttons/Buttons.styled';
 import { connect } from 'react-redux';
 import {
+  BtnSecondary,
+  BtnPrimary,
   BtnPrimaryLarge,
   BtnSecondaryLarge
 } from '../../shared_components/Buttons/Buttons.styled';
 
 export const GET_GOALS = gql`
   query getGoals($id: String) {
-    goals(where: {delegated_to_id: {_eq: $id}}) {
+    goals(where: { delegated_to_id: { _eq: $id } }) {
       id
       category
       description
+      goals_aggregate {
+        aggregate {
+          count
+        }
+      }
       weight
       state
     }
@@ -97,6 +103,16 @@ const DELEGATE_GOAL = gql`
   }
 `;
 
+const TAKE_GOAL = gql`
+  mutation doGoalAction($goalId: Int) {
+    insert_goal_actions(objects: { goal_id: $goalId, name: "in_work" }) {
+      returning {
+        id
+      }
+    }
+  }
+`;
+
 const MyGoals = ({ user }) => {
   const [aside, setAside] = React.useState({
     visible: false,
@@ -145,6 +161,7 @@ const MyGoals = ({ user }) => {
 
   const [addGoal, { addGoalData }] = useMutation(ADD_GOAL);
   const [delegateGoal, { delegateGoalData }] = useMutation(DELEGATE_GOAL);
+  const [takeGoal, { takeGoalData }] = useMutation(TAKE_GOAL);
 
   const getProperty = ({ name, idx }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
@@ -197,6 +214,13 @@ const MyGoals = ({ user }) => {
       }
     }).then(res => console.log('res', res));
   };
+  const onTakeGoal = () => {
+    takeGoal({
+      variables: {
+        goalId: goalsData.goals[aside.idx].id
+      }
+    });
+  };
 
   const ViewGoal = () => (
     <>
@@ -207,7 +231,11 @@ const MyGoals = ({ user }) => {
         <div className="mt-4 h3 font-weight-bold">
           {goalsData.goals[aside.idx].description}
         </div>
-        <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
+        {user.role === 'manager' ? (
+          <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
+        ) : (
+          <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
+        )}
       </div>
       <div className="dropdown-divider"></div>
       <div className="p-3">
@@ -318,9 +346,8 @@ const MyGoals = ({ user }) => {
       <Styled.Header>
         <Styled.TextGray className="col-2">Статус</Styled.TextGray>
         <Styled.TextGray className="col-3">Название</Styled.TextGray>
-        <Styled.TextGray className="col-2">Категория</Styled.TextGray>
-        <Styled.TextGray className="col-2">Согласующие</Styled.TextGray>
-        <Styled.TextGray className="col-2">Дочерние цели</Styled.TextGray>
+        <Styled.TextGray className="col-3">Категория</Styled.TextGray>
+        <Styled.TextGray className="col-3">Дочерние цели</Styled.TextGray>
         <Styled.TextGray className="col-1">Вес цели</Styled.TextGray>
       </Styled.Header>
       {!isLoading &&
@@ -331,11 +358,10 @@ const MyGoals = ({ user }) => {
               <Badge variant={goal.state} />
             </div>
             <div className="col-3">{goal.description}</div>
-            <div className="col-2">
+            <div className="col-3">
               {getProperty({ name: 'category', idx: goal.category })}
             </div>
-            <div className="col-2">{goal.issued_by}</div>
-            <div className="col-2">0</div>
+            <div className="col-3">goal</div>
             <div className="col-1 font-weight-bold">{goal.weight}%</div>
           </Styled.Card>
         ))}

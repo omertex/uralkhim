@@ -127,15 +127,6 @@ const SubordinatesGoals = ({ user }) => {
   const closeAside = () => {
     setAside({ visible: false, idx: 0, isCreating: false });
   };
-  const showDialogCreate = () => {
-    setIsDialogOpen(true);
-  };
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-  };
-  const onDelegate = () => {
-    setIsDelegateDialogOpen(true);
-  };
 
   const ViewGoal = () => (
     <>
@@ -146,7 +137,6 @@ const SubordinatesGoals = ({ user }) => {
         <div className="mt-4 h3 font-weight-bold">
           {goalsData.goals[aside.idx].description}
         </div>
-        <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
       </div>
       <div className="dropdown-divider" />
       <div className="p-3">

@@ -8,6 +8,8 @@ const badgeColor = variant => {
       return '#05a9af';
     case 'draft':
       return '#415062';
+    case 'in_work':
+      return '#1348cf';
   }
 }
 
@@ -19,6 +21,8 @@ const badgeBGColor = variant => {
       return '#d1f3f4';
     case 'draft':
       return '#e0e4e9';
+    case 'in_work':
+      return 'rgba(19, 72, 207, 0.2)';
   }
 }
 
