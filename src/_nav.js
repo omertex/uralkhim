@@ -2,7 +2,7 @@ export default {
   items: [
     {
       name: 'Цели подчиненных',
-      url: '/sub-targets',
+      url: '/sub-goals',
       icon: 'icon-pie-chart',
     },
     {
