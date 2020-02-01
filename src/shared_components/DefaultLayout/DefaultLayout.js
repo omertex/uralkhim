@@ -41,6 +41,11 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <Styled.Main>
+            <Styled.BtnSidebar
+              onClick={() => {
+                document.body.classList.toggle('sidebar-show2');
+              }}
+            />
             <Suspense fallback={this.loading()}>
               <Switch>
                 {routes.map((route, idx) => {
