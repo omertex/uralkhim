@@ -14,6 +14,7 @@ import {
   BtnPrimaryLarge,
   BtnSecondaryLarge
 } from '../../shared_components/Buttons/Buttons.styled';
+import { WebSocketLink } from 'apollo-link-ws';
 
 export const GET_GOALS = gql`
   query getGoals($id: String) {
@@ -121,6 +122,16 @@ const MyGoals = ({ user }) => {
   });
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDelegateDialogOpen, setIsDelegateDialogOpen] = React.useState(false);
+
+  const wsLink = new WebSocketLink({
+    uri: 'ws://scalaxi-graphql.herokuapp.com/graphql',
+    options: {
+      reconnect: true,
+      connectionParams: {
+          authToken: sessionStorage.getItem('accessToken')
+      },
+    }
+  });
 
   const {
     loading: subordinatesLoading,

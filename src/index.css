@@ -9,6 +9,9 @@ html:not([dir="rtl"]) .aside-menu.aside-menu {
 .sidebar.sidebar {
   background-color: #fff;
 }
+.sidebar-show2.sidebar-show2 .sidebar {
+  margin-left: 0;
+}
 
 .nav-link.nav-link.nav-link {
   color: #7f90a6;
