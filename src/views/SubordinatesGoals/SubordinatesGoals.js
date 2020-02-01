@@ -116,7 +116,7 @@ const SubordinatesGoals = ({ user }) => {
 
   const getProperty = ({ name, idx }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
-    return properties[name].enumNames[idx];
+    return properties[name].enumNames[idx - 1];
   };
 
   console.log(goalsData, schemaData, uiSchemaData, user);
@@ -142,7 +142,7 @@ const SubordinatesGoals = ({ user }) => {
       <div className="p-3">
         <div className="font-weight-bold">Основная информация</div>
         <div className="text-secondary mt-4">категория</div>
-        <div>{goalsData.goals[aside.idx].category}</div>
+        <div>{getProperty({name: 'category', idx: goalsData.goals[aside.idx].category})}</div>
         <div className="text-secondary mt-4">Тип цели</div>
         <div className="text-secondary mt-4">Описание цели</div>
         <div>{goalsData.goals[aside.idx].description}</div>
