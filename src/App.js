@@ -23,6 +23,41 @@ const Register = React.lazy(() => import('./views/Pages/Register'));
 const Page404 = React.lazy(() => import('./views/Pages/Page404'));
 const Page500 = React.lazy(() => import('./views/Pages/Page500'));
 
+const Resize = () => {
+  const onResize = () => {
+    console.log('onresize')
+    if (window.innerWidth >= 992) {
+      document.body.classList.add('sidebar-show', 'sidebar-show2');
+    } else {
+      document.body.classList.remove('sidebar-show', 'sidebar-show2');
+      console.log('else');
+    }
+
+  };
+
+  React.useEffect(() => {
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize)
+  }, []);
+  
+  return null;
+}
+
+const SidebarFix = () => {
+  const addSidebarClass = () => {
+    if (window.innerWidth >= 992) {
+      document.body.classList.add('sidebar-show', 'sidebar-show2');
+    }
+  }
+
+  React.useEffect(() => {
+    addSidebarClass();
+    return addSidebarClass;
+  }, []);
+  
+  return null;
+}
+
 class App extends Component {
   constructor(props) {
     super();
@@ -59,6 +94,8 @@ class App extends Component {
       <Provider store={store}>
         <AuthContext.Provider value={this.state}>
           <Normalize />
+          <Resize />
+          <SidebarFix />
           <BrowserRouter>
             <React.Suspense fallback={loading()}>
               <Switch>
