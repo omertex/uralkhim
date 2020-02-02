@@ -10,17 +10,16 @@ export const Overlay = styled.div`
   background-color: rgba(0, 0, 0, 0.2);
   z-index: 10000;
   transition: all 0.25s;
-  display: ${({ state }) => (state === 'exited' ? 'none' : 'div')};
+  display: ${({ state }) => (state === 'exited' ? 'none' : 'flex')};
   opacity: ${({ state }) =>
     state === 'entering' || state === 'exiting' ? '0' : '1'};
+  align-items: center;
 `;
 
 export const DialogWrapper = styled.div`
   position: absolute;
-    padding: 30px;
-  left: calc(50% + 100px);
-  top: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  right: 0;
   width: 90%;
   max-width: 600px;
   max-height: 90%;
@@ -28,15 +27,15 @@ export const DialogWrapper = styled.div`
   background-color: #fff;
   border-radius: 5px;
   transition: all 0.25s;
-  display: ${({ state }) => (state === 'exited' ? 'none' : 'div')};
+  display: ${({ state }) => (state === 'exited' ? 'none' : 'flex')};
   opacity: ${({ state }) =>
     state === 'entering' || state === 'exiting' ? '0' : '1'};
-  overflow: hidden;
+  overflow: overlay;
 `;
 
 export const BtnClose = styled(CleanButton)`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 40px;
+  right: 30px;
   padding: 5px;
 `;

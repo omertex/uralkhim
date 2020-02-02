@@ -287,6 +287,7 @@ const MyGoals = ({ user }) => {
   const NewGoalForm = () => (
     <Styled.DialogContent>
       <Styled.DialogHeader>Создание цели</Styled.DialogHeader>
+      <div className="dropdown-divider" />
       <Styled.DialogForm>
         <Form
           schema={schemaData.entity_definitions[0].schema}
