@@ -28,7 +28,7 @@ export const Card = styled.div`
   color: #1b2839;
 `;
 
-export const TextBlueGray = styled.span`
+export const TextBlueGray = styled.div`
   color: #617691;
   font-size: 14px;
   line-height: 20px;
@@ -89,7 +89,13 @@ export const DialogSubmit = styled.button`
   width: 100px;
   color: #fff;
   background-color: #1348cf;
-  font-weight: 600;
+  font-weight: 700;
   border: unset;
   border-radius: 5px;
+`;
+
+export const ViewGoalContainer = styled.div`
+  padding: 24px 40px;
+  font-size: 16px;
+  color: #1b2839;
 `;

@@ -235,11 +235,11 @@ const MyGoals = ({ user }) => {
 
   const ViewGoal = () => (
     <>
-      <div className="p-3">
-        <div className="pt-4">
+      <Styled.ViewGoalContainer>
+        <div className="mt-3">
           <Badge variant={goalsData.goals[aside.idx].state} />
         </div>
-        <div className="mt-4 h3 font-weight-bold">
+        <div className="mt-3 mb-3 h2 font-weight-bold">
           {goalsData.goals[aside.idx].description}
         </div>
         {user.role === 'manager' ? (
@@ -247,26 +247,40 @@ const MyGoals = ({ user }) => {
         ) : (
           <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
         )}
-      </div>
-      <div className="dropdown-divider"></div>
-      <div className="p-3">
-        <div className="font-weight-bold">Основная информация</div>
-        <div className="text-secondary mt-4">категория</div>
-        <div>
-          {getProperty({
-            name: 'category',
-            idx: goalsData.goals[aside.idx].category
-          })}
+      </Styled.ViewGoalContainer>
+      <div className="dropdown-divider" />
+      <Styled.ViewGoalContainer>
+        <div className="font-weight-bold mb-2">Основная информация</div>
+        <div className="mb-4">
+          <Styled.TextBlueGray>Категория</Styled.TextBlueGray>
+          <div>
+            {getProperty({
+              name: 'category',
+              idx: goalsData.goals[aside.idx].category
+            })}
+          </div>
         </div>
-        <div className="text-secondary mt-4">Тип цели</div>
-        <div className="text-secondary mt-4">Описание цели</div>
-        <div>{goalsData.goals[aside.idx].description}</div>
-        <div className="text-secondary mt-4">Метод подсчета</div>
-        <div className="text-secondary mt-4">Источник подтверждения</div>
-        <div className="text-secondary mt-4">Вес цели</div>
-        <div>{goalsData.goals[aside.idx].weight}%</div>
-        <div className="text-secondary mt-4">Период</div>
-      </div>
+        <div className="mb-4">
+          <Styled.TextBlueGray>Тип цели</Styled.TextBlueGray>
+        </div>
+        <div className="mb-4">
+          <Styled.TextBlueGray>Описание цели</Styled.TextBlueGray>
+          <div>{goalsData.goals[aside.idx].description}</div>
+        </div>
+        <div className="mb-4">
+          <Styled.TextBlueGray>Метод подсчета</Styled.TextBlueGray>
+        </div>
+        <div className="mb-4">
+          <Styled.TextBlueGray>Источник подтверждения</Styled.TextBlueGray>
+        </div>
+        <div className="mb-4">
+          <Styled.TextBlueGray>Вес цели</Styled.TextBlueGray>
+          <div>{goalsData.goals[aside.idx].weight}%</div>
+        </div>
+        <div className="mb-4">
+          <Styled.TextBlueGray>Период</Styled.TextBlueGray>
+        </div>
+      </Styled.ViewGoalContainer>
     </>
   );
 

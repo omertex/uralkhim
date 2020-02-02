@@ -3,7 +3,7 @@ import CleanButton from '../CleanButton/CleanButton';
 
 export const Aside = styled.div`
   position: relative;
-  width: 500px;
+  width: 640px;
   height: 100%;
   background-color: #fff;
   margin-left: auto;
@@ -26,5 +26,5 @@ export const CloseBtn = styled(CleanButton)`
   padding: 10px;
   position: absolute;
   right: 10px;
-  top: 10px;
+  top: 25px;
 `;
