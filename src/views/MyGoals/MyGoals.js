@@ -128,8 +128,8 @@ const MyGoals = ({ user }) => {
     options: {
       reconnect: true,
       connectionParams: {
-          authToken: sessionStorage.getItem('accessToken')
-      },
+        authToken: sessionStorage.getItem('accessToken')
+      }
     }
   });
 
@@ -252,7 +252,12 @@ const MyGoals = ({ user }) => {
       <div className="p-3">
         <div className="font-weight-bold">Основная информация</div>
         <div className="text-secondary mt-4">категория</div>
-        <div>{getProperty({name: 'category', idx: goalsData.goals[aside.idx].category})}</div>
+        <div>
+          {getProperty({
+            name: 'category',
+            idx: goalsData.goals[aside.idx].category
+          })}
+        </div>
         <div className="text-secondary mt-4">Тип цели</div>
         <div className="text-secondary mt-4">Описание цели</div>
         <div>{goalsData.goals[aside.idx].description}</div>
@@ -353,27 +358,31 @@ const MyGoals = ({ user }) => {
           </Aside>
         )}
       </Transition>
-      <div className="row h2 font-weight-bold p-4">Мои цели</div>
+      <div className="h2 font-weight-bold">Мои цели</div>
       <Styled.Header>
-        <Styled.TextGray className="col-2">Статус</Styled.TextGray>
-        <Styled.TextGray className="col-3">Название</Styled.TextGray>
-        <Styled.TextGray className="col-3">Категория</Styled.TextGray>
-        <Styled.TextGray className="col-3">Дочерние цели</Styled.TextGray>
-        <Styled.TextGray className="col-1">Вес цели</Styled.TextGray>
+        <span className="col-2">Статус</span>
+        <span className="col-3">Название</span>
+        <span className="col-3">Категория</span>
+        <span className="col-3">Дочерние цели</span>
+        <span className="col-1 text-right">Вес цели</span>
       </Styled.Header>
       {!isLoading &&
         isData &&
         goalsData.goals.map((goal, idx) => (
           <Styled.Card onClick={() => showAside(idx)} key={goal.id}>
-            <div className="col-2">
+            <span className="col-2">
               <Badge variant={goal.state} />
-            </div>
-            <div className="col-3">{goal.description}</div>
-            <div className="col-3">
+            </span>
+            <span className="col-3">{goal.description}</span>
+            <Styled.TextBlueGray className="col-3">
               {getProperty({ name: 'category', idx: goal.category })}
-            </div>
-            <div className="col-3">{goal.goals_aggregate.aggregate.count}</div>
-            <div className="col-1 font-weight-bold">{goal.weight}%</div>
+            </Styled.TextBlueGray>
+            <Styled.TextBlueGray className="col-3">
+              {goal.goals_aggregate.aggregate.count}
+            </Styled.TextBlueGray>
+            <span className="col-1 font-weight-bold text-right">
+              {goal.weight}%
+            </span>
           </Styled.Card>
         ))}
       <Styled.ButtonAdd onClick={showDialogCreate}>
