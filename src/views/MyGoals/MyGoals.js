@@ -341,6 +341,7 @@ const MyGoals = ({ user }) => {
             description: goalsData.goals[aside.idx].description,
             weight: goalsData.goals[aside.idx].weight
           }}
+          idPrefix={'view_'}
           onSubmit={onUpdateGoal}
         >
           <BtnPrimary type="submit">Сохранить</BtnPrimary>
@@ -373,6 +374,7 @@ const MyGoals = ({ user }) => {
               item => item.entity_state === 'creating'
             ).schema
           }
+          idPrefix={'new_'}
           onSubmit={onSubmit}
         >
           <Styled.DialogBtns>

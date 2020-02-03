@@ -38,7 +38,7 @@ const Resize = () => {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize)
   }, []);
-  
+
   return null;
 }
 
@@ -53,7 +53,7 @@ const SidebarFix = () => {
     addSidebarClass();
     return addSidebarClass;
   }, []);
-  
+
   return null;
 }
 
@@ -78,7 +78,7 @@ class App extends Component {
         user.isAuth ? (
           <AuthContext.Provider value={this.state}>
             <ApolloContext>
-              <DataController />
+              {/*<DataController />*/}
               <Component {...props} />
             </ApolloContext>
           </AuthContext.Provider>
