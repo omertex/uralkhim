@@ -1,6 +1,7 @@
 export default {
   items: [
     {
+      class: 'subs-link',
       name: 'Цели подчиненных',
       url: '/sub-goals',
       icon: 'icon-pie-chart',

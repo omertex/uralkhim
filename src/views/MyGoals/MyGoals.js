@@ -171,6 +171,12 @@ const MyGoals = ({ user }) => {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDelegateDialogOpen, setIsDelegateDialogOpen] = React.useState(false);
 
+  React.useEffect(() => {
+    if (user.role !== 'manager') {
+      document.querySelector('.subs-link').style.display = 'none';
+    }
+  }, []);
+
   const wsLink = new WebSocketLink({
     uri: 'wss://scalaxi-graphql.herokuapp.com/graphql',
     options: {
@@ -228,7 +234,6 @@ const MyGoals = ({ user }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
     return properties[name].enumNames[idx - 1];
   };
-
 
   const showAside = idx => {
     setAside({ visible: true, idx, isCreating: false });
@@ -302,18 +307,19 @@ const MyGoals = ({ user }) => {
         <div className="mt-3 mb-3 h2 font-weight-bold">
           {goalsData.goals[aside.idx].description}
         </div>
-        {user.role === 'manager' ? (
-             goalsData.goals[aside.idx].state === 'draft' &&
-             goalsData.goals[aside.idx].category === 1 &&
-                (<>
-            <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
-            <BtnPrimary className="ml-3" onClick={onTakeGoal}>
-              Взять в работу
-            </BtnPrimary>
-          </>)
-        ) : (goalsData.goals[aside.idx].state === 'draft' &&
-          <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
-        )}
+        {user.role === 'manager'
+          ? goalsData.goals[aside.idx].state === 'draft' &&
+            goalsData.goals[aside.idx].category === 1 && (
+              <>
+                <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
+                <BtnPrimary className="ml-3" onClick={onTakeGoal}>
+                  Взять в работу
+                </BtnPrimary>
+              </>
+            )
+          : goalsData.goals[aside.idx].state === 'draft' && (
+              <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
+            )}
       </Styled.ViewGoalContainer>
       <div className="dropdown-divider"></div>
       <Styled.ViewGoalContainer>
