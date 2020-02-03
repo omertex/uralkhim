@@ -55,8 +55,8 @@ class Login extends Component {
                   <Card className="p-4">
                     <CardBody>
                       <Form>
-                        <h1>Login</h1>
-                        <p className="text-muted">Sign In to your account</p>
+                        <h1>Вход</h1>
+                        <p className="text-muted">Войдите в свой аккаунт</p>
                         <InputGroup className="mb-3">
                           <InputGroupAddon addonType="prepend">
                             <InputGroupText>
@@ -92,14 +92,14 @@ class Login extends Component {
                               className="px-4"
                               onClick={this.loginHandler}
                             >
-                              Login
+                              Вход
                             </Button>
                           </Col>
-                          <Col xs="6" className="text-right">
-                            <Button color="link" className="px-0">
-                              Forgot password?
-                            </Button>
-                          </Col>
+                          {/*<Col xs="6" className="text-right">*/}
+                          {/*  <Button color="link" className="px-0">*/}
+                          {/*    Forgot password?*/}
+                          {/*  </Button>*/}
+                          {/*</Col>*/}
                         </Row>
                       </Form>
                     </CardBody>

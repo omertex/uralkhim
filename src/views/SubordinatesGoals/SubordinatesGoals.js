@@ -123,12 +123,6 @@ const SubordinatesGoals = ({ user }) => {
     error: subordinatesError,
     data: subordinatesData
   } = useQuery(GET_SUBORDINATES, { variables: { id: user.id } });
-  console.log(
-    'subordinatesData',
-    subordinatesLoading,
-    subordinatesError,
-    subordinatesData
-  );
 
   const subsArray = subordinatesData.subordinates.map(item => item.id);
   const {
@@ -136,7 +130,6 @@ const SubordinatesGoals = ({ user }) => {
     error: goalsError,
     data: goalsData
   } = useQuery(GET_GOALS, { variables: { subs: subsArray } });
-  console.log('Goals!!!!', goalsLoading, goalsError, goalsData);
 
   const {
     loading: schemaLoading,
@@ -172,7 +165,6 @@ const SubordinatesGoals = ({ user }) => {
     setAside({ visible: false, idx: 0, isCreating: false });
   };
   const onUpdateGoal = ({ formData }, event) => {
-    console.log('formData', formData);
     event.preventDefault();
     updateGoal({
       variables: {
