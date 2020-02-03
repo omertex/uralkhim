@@ -34,4 +34,5 @@ export const Badge = styled.span`
   color: ${({ variant }) => badgeColor(variant)};
   background-color: ${({ variant }) => badgeBGColor(variant)};
   border-radius: 3px;
+  white-space: nowrap;
 `;

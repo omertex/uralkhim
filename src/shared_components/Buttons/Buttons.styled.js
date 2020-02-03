@@ -21,6 +21,11 @@ export const BtnSecondary = styled(DefaultButton)`
   background-color: #e9eff4;
 `;
 
+export const BtnError = styled(DefaultButton)`
+  color: #fff;
+  background-color: #e01f2e;
+`;
+
 export const BtnPrimaryLarge = styled(DefaultButton)`
   height: 40px;
   color: #fff;
