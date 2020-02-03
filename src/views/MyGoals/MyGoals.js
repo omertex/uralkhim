@@ -186,12 +186,6 @@ const MyGoals = ({ user }) => {
     error: subordinatesError,
     data: subordinatesData
   } = useQuery(GET_SUBORDINATES, { variables: { id: user.id } });
-  console.log(
-    'subordinatesData',
-    subordinatesLoading,
-    subordinatesError,
-    subordinatesData
-  );
 
   // const {
   //   loading: goalsLoading,
@@ -235,7 +229,6 @@ const MyGoals = ({ user }) => {
     return properties[name].enumNames[idx - 1];
   };
 
-  console.log(goalsData, schemaData, uiSchemaData, user);
 
   const showAside = idx => {
     setAside({ visible: true, idx, isCreating: false });
@@ -255,7 +248,6 @@ const MyGoals = ({ user }) => {
   const onDelegateSubmit = ({ formData }, event) => {
     setIsDelegateDialogOpen(false);
     event.preventDefault();
-    console.log('onDelegateSubmit formData', formData);
     setIsDelegateDialogOpen(false);
     delegateGoal({
       variables: {
@@ -270,7 +262,6 @@ const MyGoals = ({ user }) => {
   const onSubmit = ({ formData }, event) => {
     closeDialog();
     event.preventDefault();
-    console.log('formData', formData);
     addGoal({
       variables: {
         type: formData.type,
@@ -289,7 +280,6 @@ const MyGoals = ({ user }) => {
     });
   };
   const onUpdateGoal = ({ formData }, event) => {
-    console.log(formData);
     event.preventDefault();
     updateGoal({
       variables: {

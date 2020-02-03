@@ -16,7 +16,6 @@ const GOALS_SUBSCRIPTION = gql`
 const DataController = ({user, myGoals, subGoals}) => {
   let wsLink;
   const onGoalsUpdate = ({client, subscriptionData}) => {
-    console.log('onGoalsUpdate', client, subscriptionData);
   };
   React.useEffect(() => {
     if (user.isAuth) {
