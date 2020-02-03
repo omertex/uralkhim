@@ -172,11 +172,11 @@ const SubordinatesGoals = ({ user }) => {
     return properties[name].enumNames[idx - 1];
   };
 
-  const showAside = idx => {
-    setAside({ visible: true, idx, isCreating: false });
+  const showAside = id => {
+    setAside({ visible: true, id, isCreating: false });
   };
   const closeAside = () => {
-    setAside({ visible: false, idx: 0, isCreating: false });
+    setAside({ visible: false, id: 0, isCreating: false });
   };
   const onUpdateGoal = ({ formData }, event) => {
     event.preventDefault();
@@ -192,14 +192,17 @@ const SubordinatesGoals = ({ user }) => {
     });
   };
 
-  const ViewGoal = () => (
+  const ViewGoal = () => {
+    const selectedGoal = goalsData.goals.find(goal => goal.id === aside.id);
+    console.log('selectedGoal', selectedGoal);
+    return (
     <>
       <Styled.ViewGoalContainer>
         <div className="mt-3">
-          <Badge variant={goalsData.goals[aside.idx].state} />
+          <Badge variant={selectedGoal.state} />
         </div>
         <div className="mt-3 mb-3 h2 font-weight-bold">
-          {goalsData.goals[aside.idx].description}
+          {selectedGoal.description}
         </div>
       </Styled.ViewGoalContainer>
       <div className="dropdown-divider" />
@@ -212,13 +215,13 @@ const SubordinatesGoals = ({ user }) => {
               .schema
           }
           formData={{
-            category: goalsData.goals[aside.idx].category,
+            category: selectedGoal.category,
             period: {
-              from: goalsData.goals[aside.idx].date_from,
-              to: goalsData.goals[aside.idx].date_to
+              from: selectedGoal.date_from,
+              to: selectedGoal.date_to
             },
-            description: goalsData.goals[aside.idx].description,
-            weight: goalsData.goals[aside.idx].weight
+            description: selectedGoal.description,
+            weight: selectedGoal.weight
           }}
           idPrefix={'view_'}
           onSubmit={onUpdateGoal}
@@ -228,6 +231,7 @@ const SubordinatesGoals = ({ user }) => {
       </Styled.ViewGoalContainer>
     </>
   );
+  }
 
   return (
     <Styled.Content>
@@ -240,7 +244,7 @@ const SubordinatesGoals = ({ user }) => {
       <Transition in={aside.visible} timeout={250}>
         {state => (
           <Aside close={closeAside} state={state}>
-            {!isLoading && isData && <ViewGoal />}
+            {!isLoading && isData && aside.visible && <ViewGoal />}
           </Aside>
         )}
       </Transition>
