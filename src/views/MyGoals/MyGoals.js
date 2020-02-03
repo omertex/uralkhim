@@ -348,18 +348,6 @@ const MyGoals = ({ user }) => {
         >
           <BtnPrimary type="submit">Сохранить</BtnPrimary>
         </Form>
-
-        {/* <div className="text-secondary mt-4">категория</div>
-        <div>{getProperty({name: 'category', idx: goalsData.goals[aside.idx].category})}</div>
-        <div className="text-secondary mt-4">Тип цели</div>
-        <div className="text-secondary mt-4">Описание цели</div>
-        <div>{goalsData.goals[aside.idx].description}</div>
-        <div className="text-secondary mt-4">Метод подсчета</div>
-        <div className="text-secondary mt-4">Источник подтверждения</div>
-        <div className="text-secondary mt-4">Вес цели</div>
-        <div>{goalsData.goals[aside.idx].weight}%</div>
-        <div className="text-secondary mt-4">Период</div>
-        <BtnPrimary className='mt-4'>Сохранить</BtnPrimary> */}
       </Styled.ViewGoalContainer>
     </>
   );
