@@ -11,7 +11,7 @@ const badgeColor = variant => {
     case 'in_work':
       return '#1348cf';
   }
-}
+};
 
 const badgeBGColor = variant => {
   switch (variant) {
@@ -24,13 +24,14 @@ const badgeBGColor = variant => {
     case 'in_work':
       return 'rgba(19, 72, 207, 0.2)';
   }
-}
+};
 
 export const Badge = styled.span`
-  padding: 5px;
+  font-family: 'Istok Web', sans-serif;
+  padding: 4px 8px;
   font-size: 12px;
   font-weight: 600;
-  color: ${({variant}) => badgeColor(variant)};
-  background-color: ${({variant}) => badgeBGColor(variant)};
+  color: ${({ variant }) => badgeColor(variant)};
+  background-color: ${({ variant }) => badgeBGColor(variant)};
   border-radius: 3px;
 `;

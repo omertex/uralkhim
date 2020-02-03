@@ -37,20 +37,16 @@ class Login extends Component {
     const {
       'https://hasura.io/jwt/claims': { 'x-hasura-default-role': role }
     } = parsedToken;
-    console.log('err', err);
-    console.log('loginInfo', loginInfo, role);
     if (!err && loginInfo) {
-      this.props.dispatch({type: 'SET_USER', userId: loginInfo.userId, role});
+      this.props.dispatch({type: 'SET_USER', userId: loginInfo.userId, isAuth: true, role});
       sessionStorage.setItem('accessToken', loginInfo.accessToken);
-      this.context.setIsAuth(true);
     }
   };
 
   render() {
-    console.log('this.props.user', this.props.user);
     return (
       <>
-        {this.context.isAuth && <Redirect to={{ pathname: '/' }} />}
+        {this.props.user.isAuth && <Redirect to={{ pathname: '/' }} />}
         <div className="app flex-row align-items-center">
           <Container>
             <Row className="justify-content-center">

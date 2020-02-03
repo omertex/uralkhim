@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 
 const DefaultButton = styled.button`
-  height: 35px;
-  min-width: 50px;
   border: unset;
-  border-radius: 5px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 600;
-  padding: 0 15px;
-  padding: 0 15px;
+  padding: 6px 16px;
+  &:focus {
+    outline: none;
+  }
 `;
 
 export const BtnPrimary = styled(DefaultButton)`

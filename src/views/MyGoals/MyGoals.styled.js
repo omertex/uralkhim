@@ -1,42 +1,50 @@
 import styled from 'styled-components';
 
 export const Content = styled.div`
-  padding: 30px;
+  padding: 40px;
   position: relative;
 `;
 
 export const Header = styled.div`
   display: flex;
   align-items: center;
+  padding: 0px 9px;
+  margin-top: 40px;
+  color: #617691;
+  font-size: 11px;
+  justify-content: flex-start;
 `;
 
 export const Card = styled.div`
-  height: 80px;
-  border-radius: 5px;
-  margin: 10px 0;
-  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+  padding: 24px 9px;
+  border-radius: 4px;
+  margin: 8px 0;
+  box-shadow: 0 8px 15px 0 rgba(97, 118, 145, 0.25),
+    0 0 6px 0 rgba(169, 186, 206, 0.2);
   display: flex;
   align-items: center;
   background-color: #fff;
+  font-size: 16px;
+  color: #1b2839;
 `;
 
-export const TextGray = styled.div`
-  color: gray;
-  font-size: 12px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
+export const TextBlueGray = styled.div`
+  color: #617691;
+  font-size: 14px;
+  line-height: 20px;
 `;
 
 export const ButtonAdd = styled.button`
-  height: 80px;
+  color: #1b2839;
+  padding: 26px;
   width: 100%;
   text-align: center;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: bold;
+  line-height: 20px;
   background-color: #e9eff4;
   border: unset;
-  border-radius: 5px;
+  border-radius: 4px;
 `;
 
 export const DialogContent = styled.div`
@@ -47,11 +55,17 @@ export const DialogContent = styled.div`
 
 export const DialogHeader = styled.span`
   font-size: 28px;
-  font-weight: 600;
+  line-height: 32px;
+  font-weight: bold;
+  margin: 40px 40px 28px;
 `;
 
 export const DialogForm = styled.div`
-  margin-top: 20px;
+  margin: 32px 40px;
+
+  fieldset {
+    padding: 0;
+  }
 `;
 
 export const DialogBtns = styled.div`
@@ -61,12 +75,12 @@ export const DialogBtns = styled.div`
   & * {
     margin-left: 20px;
   }
-    & *:first-child {
+  & *:first-child {
     margin-left: unset;
   }
 `;
 
-export const DialogCancel= styled.button`
+export const DialogCancel = styled.button`
   height: 40px;
   width: 100px;
   background-color: #e9eff4;
@@ -75,13 +89,19 @@ export const DialogCancel= styled.button`
   border-radius: 5px;
 `;
 
-export const DialogSubmit= styled.button`
+export const DialogSubmit = styled.button`
   margin-left: 20px;
   height: 40px;
   width: 100px;
   color: #fff;
   background-color: #1348cf;
-  font-weight: 600;
-    border: unset;
+  font-weight: 700;
+  border: unset;
   border-radius: 5px;
+`;
+
+export const ViewGoalContainer = styled.div`
+  padding: 24px 40px;
+  font-size: 16px;
+  color: #1b2839;
 `;
