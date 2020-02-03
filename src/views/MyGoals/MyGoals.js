@@ -203,6 +203,7 @@ const MyGoals = ({ user }) => {
     }
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const wsLink = new WebSocketLink({
     uri: 'wss://scalaxi-graphql.herokuapp.com/graphql',
     options: {
@@ -224,6 +225,7 @@ const MyGoals = ({ user }) => {
     error: usersError,
     data: usersData
   } = useQuery(GET_USERS);
+  console.log('usersData', usersData);
 
   // const {
   //   loading: goalsLoading,
@@ -258,6 +260,8 @@ const MyGoals = ({ user }) => {
   const isLoading = goalsLoading || schemaLoading || uiSchemaLoading;
 
   console.log('goalsData', goalsData);
+  console.log('schemaData', schemaData);
+  console.log('uiSchemaData', uiSchemaData);
 
   const [addGoal, { addGoalData }] = useMutation(ADD_GOAL);
   const [delegateGoal, { delegateGoalData }] = useMutation(DELEGATE_GOAL);
@@ -269,6 +273,7 @@ const MyGoals = ({ user }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
     return properties[name].enumNames[idx - 1];
   };
+  const getVerifierName = (id) => usersData.users.find(user => user.id == id) && usersData.users.find(user => user.id == id).fullName || '';
 
   const showAside = idx => {
     setAside({ visible: true, idx, isCreating: false });
@@ -400,6 +405,7 @@ const MyGoals = ({ user }) => {
               from: goalsData.goals[aside.idx].date_from,
               to: goalsData.goals[aside.idx].date_to
             },
+            verifier_id: getVerifierName(goalsData.goals[aside.idx].verifier_id),
             description: goalsData.goals[aside.idx].description,
             weight: goalsData.goals[aside.idx].weight
           }}
@@ -534,7 +540,7 @@ const MyGoals = ({ user }) => {
   return (
     <Styled.Content>
       <Dialog isOpen={isDialogOpen} close={closeDialog}>
-        {!isLoading && isData && <NewGoalForm />}
+        {!isLoading && isData && aside.visible && <NewGoalForm />}
       </Dialog>
       <Dialog
         isOpen={isDelegateDialogOpen}
@@ -553,7 +559,7 @@ const MyGoals = ({ user }) => {
       <Transition in={aside.visible} timeout={250}>
         {state => (
           <Aside close={closeAside} state={state}>
-            {!isLoading && isData && <ViewGoal />}
+            {!isLoading && isData && aside.visible && <ViewGoal />}
           </Aside>
         )}
       </Transition>
