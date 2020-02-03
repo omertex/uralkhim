@@ -149,6 +149,20 @@ const SubordinatesGoals = ({ user }) => {
     schemaData.entity_definitions.length &&
     uiSchemaData &&
     uiSchemaData.ui_schemas.length;
+
+  let goalsPerSub;
+  if (isData) {
+    goalsPerSub = goalsData.goals.reduce((acc, goal) => {
+      if (goal.delegated_to.fullName in acc) {
+        acc[goal.delegated_to.fullName].push(goal)
+      } else {
+        acc[goal.delegated_to.fullName] = [goal];
+      }
+      return acc;
+    }, {});
+    console.log('goalsPerSub', goalsPerSub);
+  }
+
   const isLoading = goalsLoading || schemaLoading || uiSchemaLoading;
 
   const [updateGoal, { updateGoalData }] = useMutation(UPDATE_GOAL);
@@ -230,33 +244,65 @@ const SubordinatesGoals = ({ user }) => {
           </Aside>
         )}
       </Transition>
-      <div className="h2 font-weight-bold">Мои цели</div>
-      <Styled.Header>
-        <span className="col-2">Статус</span>
-        <span className="col-3">Название</span>
-        <span className="col-3">Категория</span>
-        <span className="col-3">Сотрудник</span>
-        <span className="col-1 text-right">Вес цели</span>
-      </Styled.Header>
+      <div className="h2 font-weight-bold">Цели подчиненных</div>
+
       {!isLoading &&
         isData &&
-        goalsData.goals.map((goal, idx) => (
-          <Styled.Card onClick={() => showAside(idx)} key={goal.id}>
-            <span className="col-2">
-              <Badge variant={goal.state} />
-            </span>
-            <span className="col-3">{goal.description}</span>
-            <Styled.TextBlueGray className="col-3">
-              {getProperty({ name: 'category', idx: goal.category })}
-            </Styled.TextBlueGray>
-            <Styled.TextBlueGray className="col-3">
-              {goal.delegated_to.fullName}
-            </Styled.TextBlueGray>
-            <span className="col-1 font-weight-bold text-right">
-              {goal.weight}%
-            </span>
-          </Styled.Card>
-        ))}
+        goalsPerSub &&
+        Object.keys(goalsPerSub).map((fullName) => (
+            <div key={fullName}>
+              <Styled.FullName>{fullName}</Styled.FullName>
+              <Styled.Header>
+                <span className="col-2">Статус</span>
+                <span className="col-3">Название</span>
+                <span className="col-3">Категория</span>
+                <span className="col-3">Сотрудник</span>
+                <span className="col-1 text-right">Вес цели</span>
+              </Styled.Header>
+              {goalsPerSub[fullName].map(goal => (
+                <Styled.Card onClick={() => showAside(goal.id)} key={goal.id}>
+                  <span className="col-2">
+                    <Badge variant={goal.state} />
+                  </span>
+                      <span className="col-3">{goal.description}</span>
+                      <Styled.TextBlueGray className="col-3">
+                        {getProperty({ name: 'category', idx: goal.category })}
+                      </Styled.TextBlueGray>
+                      <Styled.TextBlueGray className="col-3">
+                        {goal.delegated_to.fullName}
+                      </Styled.TextBlueGray>
+                      <span className="col-1 font-weight-bold text-right">
+                    {goal.weight}%
+                  </span>
+                    </Styled.Card>
+              ))}
+            </div>
+        ))
+
+
+
+
+        // goalsData.goals.map((goal, idx) => (
+        //   <Styled.Card onClick={() => showAside(idx)} key={goal.id}>
+        //     <span className="col-2">
+        //       <Badge variant={goal.state} />
+        //     </span>
+        //     <span className="col-3">{goal.description}</span>
+        //     <Styled.TextBlueGray className="col-3">
+        //       {getProperty({ name: 'category', idx: goal.category })}
+        //     </Styled.TextBlueGray>
+        //     <Styled.TextBlueGray className="col-3">
+        //       {goal.delegated_to.fullName}
+        //     </Styled.TextBlueGray>
+        //     <span className="col-1 font-weight-bold text-right">
+        //       {goal.weight}%
+        //     </span>
+        //   </Styled.Card>
+        // ))
+
+
+
+      }
     </Styled.Content>
   );
 };

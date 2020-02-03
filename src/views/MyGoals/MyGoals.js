@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import {
   BtnSecondary,
   BtnPrimary,
+  BtnError,
   BtnPrimaryLarge,
   BtnSecondaryLarge
 } from '../../shared_components/Buttons/Buttons.styled';
@@ -35,6 +36,15 @@ import { WebSocketLink } from 'apollo-link-ws';
 //   }
 // `;
 
+export const GET_USERS = gql`
+  {
+    users {
+      id
+      fullName
+    }
+  }
+`;
+
 const GET_GOALS = gql`
   query getGoals($id: String) {
     goals(where: { delegated_to_id: { _eq: $id } }) {
@@ -48,6 +58,8 @@ const GET_GOALS = gql`
           count
         }
       }
+      verification_method
+      verifier_id
       weight
       state
     }
@@ -82,6 +94,7 @@ export const GET_GOALS_UI_SCHEMA = gql`
 
 const ADD_GOAL = gql`
   mutation InsertGoal(
+    $countingMethod: String
     $date_from: date
     $date_to: date
     $description: String
@@ -90,7 +103,7 @@ const ADD_GOAL = gql`
   ) {
     insert_goals(
       objects: {
-        verification_method: "Яндекс метрика"
+        verification_method: $countingMethod
         date_from: $date_from
         date_to: $date_to
         description: $description
@@ -136,8 +149,19 @@ const TAKE_GOAL = gql`
   }
 `;
 
+const DELETE_GOAL = gql`
+mutation deleteGoal($goalId: Int) {
+  delete_goals(where: {id: {_eq: $goalId}}) {
+    returning {
+      id
+    }
+  }
+}
+`;
+
 const UPDATE_GOAL = gql`
   mutation updateGoal(
+    $countingMethod: String
     $goalId: Int
     $date_from: date
     $date_to: date
@@ -148,6 +172,7 @@ const UPDATE_GOAL = gql`
     update_goals(
       where: { id: { _eq: $goalId } }
       _set: {
+        verification_method: $countingMethod
         date_from: $date_from
         date_to: $date_to
         description: $description
@@ -170,6 +195,7 @@ const MyGoals = ({ user }) => {
   });
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDelegateDialogOpen, setIsDelegateDialogOpen] = React.useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (user.role !== 'manager') {
@@ -192,6 +218,12 @@ const MyGoals = ({ user }) => {
     error: subordinatesError,
     data: subordinatesData
   } = useQuery(GET_SUBORDINATES, { variables: { id: user.id } });
+
+  const {
+    loading: usersLoading,
+    error: usersError,
+    data: usersData
+  } = useQuery(GET_USERS);
 
   // const {
   //   loading: goalsLoading,
@@ -225,9 +257,12 @@ const MyGoals = ({ user }) => {
     uiSchemaData.ui_schemas.length;
   const isLoading = goalsLoading || schemaLoading || uiSchemaLoading;
 
+  console.log('goalsData', goalsData);
+
   const [addGoal, { addGoalData }] = useMutation(ADD_GOAL);
   const [delegateGoal, { delegateGoalData }] = useMutation(DELEGATE_GOAL);
   const [takeGoal, { takeGoalData }] = useMutation(TAKE_GOAL);
+  const [deleteGoal, { deleteData }] = useMutation(DELETE_GOAL);
   const [updateGoal, { updateGoalData }] = useMutation(UPDATE_GOAL);
 
   const getProperty = ({ name, idx }) => {
@@ -248,6 +283,7 @@ const MyGoals = ({ user }) => {
     setIsDialogOpen(false);
   };
   const onDelegate = () => {
+    closeAside();
     setIsDelegateDialogOpen(true);
   };
   const onDelegateSubmit = ({ formData }, event) => {
@@ -269,16 +305,26 @@ const MyGoals = ({ user }) => {
     event.preventDefault();
     addGoal({
       variables: {
+        countingMethod: formData.countingMethod,
         type: formData.type,
         date_from: formData.period.from,
         date_to: formData.period.to,
         description: formData.description,
         weight: +formData.weight
       }
-    }).then(res => console.log('res', res));
+    });
   };
   const onTakeGoal = () => {
+    closeAside();
     takeGoal({
+      variables: {
+        goalId: goalsData.goals[aside.idx].id
+      }
+    });
+  };
+  const onDeleteGoal = () => {
+    closeAside();
+    deleteGoal({
       variables: {
         goalId: goalsData.goals[aside.idx].id
       }
@@ -286,8 +332,10 @@ const MyGoals = ({ user }) => {
   };
   const onUpdateGoal = ({ formData }, event) => {
     event.preventDefault();
+    setIsEditDialogOpen(false);
     updateGoal({
       variables: {
+        countingMethod: formData.countingMethod,
         goalId: goalsData.goals[aside.idx].id,
         date_from: formData.period.from,
         date_to: formData.period.to,
@@ -307,19 +355,34 @@ const MyGoals = ({ user }) => {
         <div className="mt-3 mb-3 h2 font-weight-bold">
           {goalsData.goals[aside.idx].description}
         </div>
-        {user.role === 'manager'
-          ? goalsData.goals[aside.idx].state === 'draft' &&
-            goalsData.goals[aside.idx].category === 1 && (
-              <>
-                <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
-                <BtnPrimary className="ml-3" onClick={onTakeGoal}>
-                  Взять в работу
-                </BtnPrimary>
-              </>
-            )
-          : goalsData.goals[aside.idx].state === 'draft' && (
-              <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
+        {user.role === 'manager' ? (
+          <>
+            <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
+            {(goalsData.goals[aside.idx].state === 'draft' ||
+              goalsData.goals[aside.idx].state === 'in_review') && (
+              <BtnPrimary className="ml-3" onClick={onTakeGoal}>
+                Взять в работу
+              </BtnPrimary>
             )}
+            <BtnPrimary
+              className="ml-3"
+              onClick={() => setIsEditDialogOpen(true)}
+            >
+              Редактировать
+            </BtnPrimary>
+            {goalsData.goals[aside.idx].state === 'draft' && <BtnError
+              className="ml-3"
+              onClick={onDeleteGoal}
+            >
+              Удалить
+            </BtnError>}
+          </>
+        ) : (
+          (goalsData.goals[aside.idx].state === 'draft' ||
+            goalsData.goals[aside.idx].state === 'in_review') && (
+            <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
+          )
+        )}
       </Styled.ViewGoalContainer>
       <div className="dropdown-divider"></div>
       <Styled.ViewGoalContainer>
@@ -331,6 +394,7 @@ const MyGoals = ({ user }) => {
               .schema
           }
           formData={{
+            countingMethod: goalsData.goals[aside.idx].verification_method,
             category: goalsData.goals[aside.idx].category,
             period: {
               from: goalsData.goals[aside.idx].date_from,
@@ -342,10 +406,50 @@ const MyGoals = ({ user }) => {
           idPrefix={'view_'}
           onSubmit={onUpdateGoal}
         >
-          <BtnPrimary type="submit">Сохранить</BtnPrimary>
+          <div />
         </Form>
       </Styled.ViewGoalContainer>
     </>
+  );
+
+  const EditForm = () => (
+    <Styled.DialogContent>
+      <Styled.DialogHeader>Редактирование цели</Styled.DialogHeader>
+      <div className="dropdown-divider" />
+      <Styled.ViewGoalContainer>
+        <Form
+          schema={schemaData.entity_definitions[0].schema}
+          uiSchema={
+            uiSchemaData.ui_schemas.find(item => item.entity_state === 'edit')
+              .schema
+          }
+          formData={{
+            countingMethod: goalsData.goals[aside.idx].verification_method,
+            category: goalsData.goals[aside.idx].category,
+            period: {
+              from: goalsData.goals[aside.idx].date_from,
+              to: goalsData.goals[aside.idx].date_to
+            },
+            description: goalsData.goals[aside.idx].description,
+            weight: goalsData.goals[aside.idx].weight
+          }}
+          idPrefix={'edit_'}
+          onSubmit={onUpdateGoal}
+        >
+          <Styled.DialogBtns>
+            <Styled.DialogCancel
+              type="button"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+              }}
+            >
+              Отмена
+            </Styled.DialogCancel>
+            <Styled.DialogSubmit type="submit">Сохранить</Styled.DialogSubmit>
+          </Styled.DialogBtns>
+        </Form>
+      </Styled.ViewGoalContainer>
+    </Styled.DialogContent>
   );
 
   const NewGoalForm = () => (
@@ -439,6 +543,12 @@ const MyGoals = ({ user }) => {
         }}
       >
         {!subordinatesLoading && subordinatesData && <DelegateForm />}
+      </Dialog>
+      <Dialog
+        isOpen={isEditDialogOpen}
+        close={() => setIsEditDialogOpen(false)}
+      >
+        {!isLoading && isData && <EditForm />}
       </Dialog>
       <Transition in={aside.visible} timeout={250}>
         {state => (

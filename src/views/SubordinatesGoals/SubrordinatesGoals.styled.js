@@ -9,10 +9,16 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   padding: 0px 9px;
-  margin-top: 40px;
+  margin-top: 10px;
   color: #617691;
   font-size: 11px;
   justify-content: flex-start;
+`;
+
+export const FullName = styled.div`
+    margin-top: 30px;
+    font-size: 18px;
+    font-weight: 600;
 `;
 
 export const Card = styled.div`

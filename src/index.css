@@ -34,3 +34,7 @@ html:not([dir="rtl"]) .aside-menu.aside-menu {
 body {
   background-color: #f4f6f8 !important;
 }
+
+fieldset fieldset {
+  padding: unset;
+}
