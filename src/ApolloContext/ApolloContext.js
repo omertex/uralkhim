@@ -2,12 +2,12 @@ import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import {AuthContext} from '../AuthContext/AuthContext';
 import ApolloClient from 'apollo-boost';
+import { connect } from 'react-redux';
 
-const ApolloContext = ({children}) => {
+const ApolloContext = ({children, user}) => {
   const [client, setClient] = React.useState(null);
-  const authContext = React.useContext(AuthContext);
   React.useEffect(() => {
-    if (authContext.isAuth) {
+    if (user.isAuth) {
       const accessToken = sessionStorage.getItem('accessToken');
       setClient(new ApolloClient({
         uri: 'https://scalaxi-graphql.herokuapp.com/graphql',
@@ -16,13 +16,19 @@ const ApolloContext = ({children}) => {
         }
       }))
     }
-  }, [authContext.isAuth]);
+  }, [user.isAuth]);
 
   return (
-    client && (<ApolloProvider client={client}>
+    client ? (<ApolloProvider client={client}>
       {children}
-    </ApolloProvider>)
+    </ApolloProvider>) : null
   );
 };
 
-export default ApolloContext;
+const mapStateToProps = state => {
+  return {
+    user: state.user,
+  };
+};
+
+export default connect(mapStateToProps)(ApolloContext);
