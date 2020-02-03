@@ -172,7 +172,7 @@ const MyGoals = ({ user }) => {
   const [isDelegateDialogOpen, setIsDelegateDialogOpen] = React.useState(false);
 
   const wsLink = new WebSocketLink({
-    uri: 'ws://scalaxi-graphql.herokuapp.com/graphql',
+    uri: 'wss://scalaxi-graphql.herokuapp.com/graphql',
     options: {
       reconnect: true,
       connectionParams: {
@@ -313,13 +313,15 @@ const MyGoals = ({ user }) => {
           {goalsData.goals[aside.idx].description}
         </div>
         {user.role === 'manager' ? (
-          <>
+             goalsData.goals[aside.idx].state === 'draft' &&
+             goalsData.goals[aside.idx].category === 1 &&
+                (<>
             <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
             <BtnPrimary className="ml-3" onClick={onTakeGoal}>
               Взять в работу
             </BtnPrimary>
-          </>
-        ) : (
+          </>)
+        ) : (goalsData.goals[aside.idx].state === 'draft' &&
           <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
         )}
       </Styled.ViewGoalContainer>
