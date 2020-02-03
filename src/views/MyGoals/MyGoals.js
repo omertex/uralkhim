@@ -2,7 +2,7 @@ import React from 'react';
 import Aside from '../../shared_components/Aside/Aside';
 import { Transition } from 'react-transition-group';
 import gql from 'graphql-tag';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import Form from 'react-jsonschema-form';
 import * as Styled from './MyGoals.styled';
 import Badge from '../../shared_components/Badge/Badge';
@@ -16,11 +16,32 @@ import {
 } from '../../shared_components/Buttons/Buttons.styled';
 import { WebSocketLink } from 'apollo-link-ws';
 
-export const GET_GOALS = gql`
+// export const GET_GOALS = gql`
+//   query getGoals($id: String) {
+//     goals(where: { delegated_to_id: { _eq: $id } }) {
+//       id
+//       category
+//       date_from
+//       date_to
+//       description
+//       goals_aggregate {
+//         aggregate {
+//           count
+//         }
+//       }
+//       weight
+//       state
+//     }
+//   }
+// `;
+
+const GET_GOALS = gql`
   query getGoals($id: String) {
     goals(where: { delegated_to_id: { _eq: $id } }) {
       id
       category
+      date_from
+      date_to
       description
       goals_aggregate {
         aggregate {
@@ -48,11 +69,12 @@ export const GET_GOALS_UI_SCHEMA = gql`
     ui_schemas(
       where: {
         _and: {
-          entity_state: { _eq: "creating" }
+          entity_state: { _in: ["creating", "edit"] }
           entity_definition_id: { _eq: 1 }
         }
       }
     ) {
+      entity_state
       schema
     }
   }
@@ -114,6 +136,32 @@ const TAKE_GOAL = gql`
   }
 `;
 
+const UPDATE_GOAL = gql`
+  mutation updateGoal(
+    $goalId: Int
+    $date_from: date
+    $date_to: date
+    $description: String
+    $type: smallint
+    $weight: smallint
+  ) {
+    update_goals(
+      where: { id: { _eq: $goalId } }
+      _set: {
+        date_from: $date_from
+        date_to: $date_to
+        description: $description
+        type: $type
+        weight: $weight
+      }
+    ) {
+      returning {
+        id
+      }
+    }
+  }
+`;
+
 const MyGoals = ({ user }) => {
   const [aside, setAside] = React.useState({
     visible: false,
@@ -145,11 +193,18 @@ const MyGoals = ({ user }) => {
     subordinatesData
   );
 
+  // const {
+  //   loading: goalsLoading,
+  //   error: goalsError,
+  //   data: goalsData
+  // } = useQuery(GET_GOALS, { variables: { id: user.id.toString() } });
+
   const {
     loading: goalsLoading,
     error: goalsError,
     data: goalsData
-  } = useQuery(GET_GOALS, { variables: { id: user.id.toString() } });
+  } = useSubscription(GET_GOALS, { variables: { id: user.id.toString() } });
+
   const {
     loading: schemaLoading,
     error: schemaError,
@@ -173,6 +228,7 @@ const MyGoals = ({ user }) => {
   const [addGoal, { addGoalData }] = useMutation(ADD_GOAL);
   const [delegateGoal, { delegateGoalData }] = useMutation(DELEGATE_GOAL);
   const [takeGoal, { takeGoalData }] = useMutation(TAKE_GOAL);
+  const [updateGoal, { updateGoalData }] = useMutation(UPDATE_GOAL);
 
   const getProperty = ({ name, idx }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
@@ -232,6 +288,20 @@ const MyGoals = ({ user }) => {
       }
     });
   };
+  const onUpdateGoal = ({ formData }, event) => {
+    console.log(formData);
+    event.preventDefault();
+    updateGoal({
+      variables: {
+        goalId: goalsData.goals[aside.idx].id,
+        date_from: formData.period.from,
+        date_to: formData.period.to,
+        description: formData.description,
+        type: formData.type,
+        weight: formData.weight
+      }
+    });
+  };
 
   const ViewGoal = () => (
     <>
@@ -243,43 +313,50 @@ const MyGoals = ({ user }) => {
           {goalsData.goals[aside.idx].description}
         </div>
         {user.role === 'manager' ? (
-          <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
+          <>
+            <BtnSecondary onClick={onDelegate}>Делегировать</BtnSecondary>
+            <BtnPrimary className="ml-3" onClick={onTakeGoal}>
+              Взять в работу
+            </BtnPrimary>
+          </>
         ) : (
           <BtnPrimary onClick={onTakeGoal}>Взять в работу</BtnPrimary>
         )}
       </Styled.ViewGoalContainer>
-      <div className="dropdown-divider" />
+      <div className="dropdown-divider"></div>
       <Styled.ViewGoalContainer>
         <div className="font-weight-bold mb-2">Основная информация</div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Категория</Styled.TextBlueGray>
-          <div>
-            {getProperty({
-              name: 'category',
-              idx: goalsData.goals[aside.idx].category
-            })}
-          </div>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Тип цели</Styled.TextBlueGray>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Описание цели</Styled.TextBlueGray>
-          <div>{goalsData.goals[aside.idx].description}</div>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Метод подсчета</Styled.TextBlueGray>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Источник подтверждения</Styled.TextBlueGray>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Вес цели</Styled.TextBlueGray>
-          <div>{goalsData.goals[aside.idx].weight}%</div>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Период</Styled.TextBlueGray>
-        </div>
+        <Form
+          schema={schemaData.entity_definitions[0].schema}
+          uiSchema={
+            uiSchemaData.ui_schemas.find(item => item.entity_state === 'edit')
+              .schema
+          }
+          formData={{
+            category: goalsData.goals[aside.idx].category,
+            period: {
+              from: goalsData.goals[aside.idx].date_from,
+              to: goalsData.goals[aside.idx].date_to
+            },
+            description: goalsData.goals[aside.idx].description,
+            weight: goalsData.goals[aside.idx].weight
+          }}
+          onSubmit={onUpdateGoal}
+        >
+          <BtnPrimary type="submit">Сохранить</BtnPrimary>
+        </Form>
+
+        {/* <div className="text-secondary mt-4">категория</div>
+        <div>{getProperty({name: 'category', idx: goalsData.goals[aside.idx].category})}</div>
+        <div className="text-secondary mt-4">Тип цели</div>
+        <div className="text-secondary mt-4">Описание цели</div>
+        <div>{goalsData.goals[aside.idx].description}</div>
+        <div className="text-secondary mt-4">Метод подсчета</div>
+        <div className="text-secondary mt-4">Источник подтверждения</div>
+        <div className="text-secondary mt-4">Вес цели</div>
+        <div>{goalsData.goals[aside.idx].weight}%</div>
+        <div className="text-secondary mt-4">Период</div>
+        <BtnPrimary className='mt-4'>Сохранить</BtnPrimary> */}
       </Styled.ViewGoalContainer>
     </>
   );
@@ -291,7 +368,11 @@ const MyGoals = ({ user }) => {
       <Styled.DialogForm>
         <Form
           schema={schemaData.entity_definitions[0].schema}
-          uiSchema={uiSchemaData.ui_schemas[0].schema}
+          uiSchema={
+            uiSchemaData.ui_schemas.find(
+              item => item.entity_state === 'creating'
+            ).schema
+          }
           onSubmit={onSubmit}
         >
           <Styled.DialogBtns>
@@ -344,7 +425,12 @@ const MyGoals = ({ user }) => {
             idPrefix={'delegate_'}
           >
             <Styled.DialogBtns>
-              <BtnSecondaryLarge>Отмена</BtnSecondaryLarge>
+              <BtnSecondaryLarge
+                type="button"
+                onClick={() => setIsDelegateDialogOpen(false)}
+              >
+                Отмена
+              </BtnSecondaryLarge>
               <BtnPrimaryLarge type="submit">Делегировать</BtnPrimaryLarge>
             </Styled.DialogBtns>
           </Form>

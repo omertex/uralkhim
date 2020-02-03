@@ -6,6 +6,9 @@ const DefaultButton = styled.button`
   font-size: 14px;
   font-weight: 600;
   padding: 6px 16px;
+  &:focus {
+    outline: none;
+  }
 `;
 
 export const BtnPrimary = styled(DefaultButton)`
