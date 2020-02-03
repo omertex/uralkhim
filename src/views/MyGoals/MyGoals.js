@@ -46,7 +46,7 @@ export const GET_USERS = gql`
 `;
 
 const GET_GOALS = gql`
-  query getGoals($id: String) {
+  subscription getGoals($id: String) {
     goals(where: { delegated_to_id: { _eq: $id } }) {
       id
       category
@@ -202,17 +202,6 @@ const MyGoals = ({ user }) => {
       document.querySelector('.subs-link').style.display = 'none';
     }
   }, []);
-
-  // eslint-disable-next-line no-unused-vars
-  const wsLink = new WebSocketLink({
-    uri: 'wss://scalaxi-graphql.herokuapp.com/graphql',
-    options: {
-      reconnect: true,
-      connectionParams: {
-        authToken: sessionStorage.getItem('accessToken')
-      }
-    }
-  });
 
   const {
     loading: subordinatesLoading,

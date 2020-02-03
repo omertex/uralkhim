@@ -58,6 +58,32 @@ const GET_GOALS_SCHEMA = gql`
 //   }
 // `;
 
+const ADD_GOAL = gql`
+  mutation InsertGoal(
+    $countingMethod: String
+    $date_from: date
+    $date_to: date
+    $description: String
+    $type: smallint
+    $weight: smallint
+  ) {
+    insert_goals(
+      objects: {
+        verification_method: $countingMethod
+        date_from: $date_from
+        date_to: $date_to
+        description: $description
+        type: $type
+        weight: $weight
+      }
+    ) {
+      returning {
+        id
+      }
+    }
+  }
+`;
+
 export const GET_GOALS_UI_SCHEMA = gql`
   {
     ui_schemas(
@@ -166,12 +192,15 @@ const SubordinatesGoals = ({ user }) => {
   const isLoading = goalsLoading || schemaLoading || uiSchemaLoading;
 
   const [updateGoal, { updateGoalData }] = useMutation(UPDATE_GOAL);
+  const [addGoal, { addGoalData }] = useMutation(ADD_GOAL);
 
   const getProperty = ({ name, idx }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
     return properties[name].enumNames[idx - 1];
   };
-
+  const showDialogCreate = () => {
+    setIsDialogOpen(true);
+  };
   const showAside = id => {
     setAside({ visible: true, id, isCreating: false });
   };
@@ -191,6 +220,55 @@ const SubordinatesGoals = ({ user }) => {
       }
     });
   };
+
+  const onSubmit = ({ formData }, event) => {
+    closeDialog();
+    event.preventDefault();
+    addGoal({
+      variables: {
+        countingMethod: formData.countingMethod,
+        type: formData.type,
+        date_from: formData.period.from,
+        date_to: formData.period.to,
+        description: formData.description,
+        weight: +formData.weight
+      }
+    });
+  };
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+  };
+
+  const NewGoalForm = () => (
+    <Styled.DialogContent>
+      <Styled.DialogHeader>Создание цели</Styled.DialogHeader>
+      <div className="dropdown-divider" />
+      <Styled.DialogForm>
+        <Form
+          schema={schemaData.entity_definitions[0].schema}
+          uiSchema={
+            uiSchemaData.ui_schemas.find(
+              item => item.entity_state === 'creating'
+            ).schema
+          }
+          idPrefix={'new_'}
+          onSubmit={onSubmit}
+        >
+          <Styled.DialogBtns>
+            <Styled.DialogCancel
+              type="button"
+              onClick={() => {
+                setIsDialogOpen(false);
+              }}
+            >
+              Отмена
+            </Styled.DialogCancel>
+            <Styled.DialogSubmit type="submit">Сохранить</Styled.DialogSubmit>
+          </Styled.DialogBtns>
+        </Form>
+      </Styled.DialogForm>
+    </Styled.DialogContent>
+  );
 
   const ViewGoal = () => {
     const selectedGoal = goalsData.goals.find(goal => goal.id === aside.id);
@@ -235,6 +313,9 @@ const SubordinatesGoals = ({ user }) => {
 
   return (
     <Styled.Content>
+      <Dialog isOpen={isDialogOpen} close={closeDialog}>
+        {!isLoading && isData && aside.visible && <NewGoalForm />}
+      </Dialog>
       <Dialog
         isOpen={isDelegateDialogOpen}
         close={() => {
@@ -282,31 +363,10 @@ const SubordinatesGoals = ({ user }) => {
               ))}
             </div>
         ))
-
-
-
-
-        // goalsData.goals.map((goal, idx) => (
-        //   <Styled.Card onClick={() => showAside(idx)} key={goal.id}>
-        //     <span className="col-2">
-        //       <Badge variant={goal.state} />
-        //     </span>
-        //     <span className="col-3">{goal.description}</span>
-        //     <Styled.TextBlueGray className="col-3">
-        //       {getProperty({ name: 'category', idx: goal.category })}
-        //     </Styled.TextBlueGray>
-        //     <Styled.TextBlueGray className="col-3">
-        //       {goal.delegated_to.fullName}
-        //     </Styled.TextBlueGray>
-        //     <span className="col-1 font-weight-bold text-right">
-        //       {goal.weight}%
-        //     </span>
-        //   </Styled.Card>
-        // ))
-
-
-
       }
+      <Styled.ButtonAdd onClick={showDialogCreate}>
+        + Создать цель подчиненному
+      </Styled.ButtonAdd>
     </Styled.Content>
   );
 };
