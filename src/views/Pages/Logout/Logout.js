@@ -1,18 +1,25 @@
 import React from "react";
 import {AuthContext} from "../../../AuthContext/AuthContext";
 import {Redirect} from "react-router-dom";
+import {connect} from 'react-redux';
 
-const Logout = () => {
+const Logout = ({dispatch}) => {
   const authContext = React.useContext(AuthContext);
   React.useEffect(() => {
-      sessionStorage.removeItem('accessToken');
-      authContext.setIsAuth(false);
+    sessionStorage.removeItem('accessToken');
+    dispatch({type: 'LOGOUT'});
     }, []
   );
 
   return (
-    <Redirect to={{pathname: "/login"}} />
+    <Redirect to={{pathname: '/login'}} />
   )
 }
 
-export default Logout;
+function mapStateToProps(state) {
+  return {
+    user: state.user
+  }
+}
+
+export default connect(mapStateToProps)(Logout);

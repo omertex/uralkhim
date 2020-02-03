@@ -43,16 +43,32 @@ const GET_GOALS_SCHEMA = gql`
   }
 `;
 
-const GET_GOALS_UI_SCHEMA = gql`
+// const GET_GOALS_UI_SCHEMA = gql`
+//   {
+//     ui_schemas(
+//       where: {
+//         _and: {
+//           entity_state: { _eq: "creating" }
+//           entity_definition_id: { _eq: 1 }
+//         }
+//       }
+//     ) {
+//       schema
+//     }
+//   }
+// `;
+
+export const GET_GOALS_UI_SCHEMA = gql`
   {
     ui_schemas(
       where: {
         _and: {
-          entity_state: { _eq: "creating" }
+          entity_state: { _in: ["creating", "edit"] }
           entity_definition_id: { _eq: 1 }
         }
       }
     ) {
+      entity_state
       schema
     }
   }
@@ -63,6 +79,32 @@ const GET_SUBORDINATES = gql`
     subordinates(id: $id) {
       id
       fullName
+    }
+  }
+`;
+
+const UPDATE_GOAL = gql`
+  mutation updateGoal(
+    $goalId: Int
+    $date_from: date
+    $date_to: date
+    $description: String
+    $type: smallint
+    $weight: smallint
+  ) {
+    update_goals(
+      where: { id: { _eq: $goalId } }
+      _set: {
+        date_from: $date_from
+        date_to: $date_to
+        description: $description
+        type: $type
+        weight: $weight
+      }
+    ) {
+      returning {
+        id
+      }
     }
   }
 `;
@@ -89,7 +131,6 @@ const SubordinatesGoals = ({ user }) => {
   );
 
   const subsArray = subordinatesData.subordinates.map(item => item.id);
-  console.log('subsArray', subsArray);
   const {
     loading: goalsLoading,
     error: goalsError,
@@ -117,18 +158,32 @@ const SubordinatesGoals = ({ user }) => {
     uiSchemaData.ui_schemas.length;
   const isLoading = goalsLoading || schemaLoading || uiSchemaLoading;
 
+  const [updateGoal, { updateGoalData }] = useMutation(UPDATE_GOAL);
+
   const getProperty = ({ name, idx }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
     return properties[name].enumNames[idx - 1];
   };
-
-  console.log(goalsData, schemaData, uiSchemaData, user);
 
   const showAside = idx => {
     setAside({ visible: true, idx, isCreating: false });
   };
   const closeAside = () => {
     setAside({ visible: false, idx: 0, isCreating: false });
+  };
+  const onUpdateGoal = ({ formData }, event) => {
+    console.log('formData', formData);
+    event.preventDefault();
+    updateGoal({
+      variables: {
+        goalId: goalsData.goals[aside.idx].id,
+        date_from: formData.period.from,
+        date_to: formData.period.to,
+        description: formData.description,
+        type: formData.type,
+        weight: formData.weight
+      }
+    });
   };
 
   const ViewGoal = () => (
@@ -144,35 +199,26 @@ const SubordinatesGoals = ({ user }) => {
       <div className="dropdown-divider" />
       <Styled.ViewGoalContainer>
         <div className="font-weight-bold mb-2">Основная информация</div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Категория</Styled.TextBlueGray>
-          <div>
-            {getProperty({
-              name: 'category',
-              idx: goalsData.goals[aside.idx].category
-            })}
-          </div>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Тип цели</Styled.TextBlueGray>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Описание цели</Styled.TextBlueGray>
-          <div>{goalsData.goals[aside.idx].description}</div>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Метод подсчета</Styled.TextBlueGray>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Источник подтверждения</Styled.TextBlueGray>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Вес цели</Styled.TextBlueGray>
-          <div>{goalsData.goals[aside.idx].weight}%</div>
-        </div>
-        <div className="mb-4">
-          <Styled.TextBlueGray>Период</Styled.TextBlueGray>
-        </div>
+        <Form
+          schema={schemaData.entity_definitions[0].schema}
+          uiSchema={
+            uiSchemaData.ui_schemas.find(item => item.entity_state === 'edit')
+              .schema
+          }
+          formData={{
+            category: goalsData.goals[aside.idx].category,
+            period: {
+              from: goalsData.goals[aside.idx].date_from,
+              to: goalsData.goals[aside.idx].date_to
+            },
+            description: goalsData.goals[aside.idx].description,
+            weight: goalsData.goals[aside.idx].weight
+          }}
+          idPrefix={'view_'}
+          onSubmit={onUpdateGoal}
+        >
+          {<div />/*<BtnPrimary type="submit">Сохранить</BtnPrimary>*/}
+        </Form>
       </Styled.ViewGoalContainer>
     </>
   );
