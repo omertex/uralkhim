@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "enum": [1, 2],
+      "type": "number",
+      "default": 1,
+      "enumNames": ["Количественная", "Качественная"]
+    },
+    "period": { "$ref": "#/definitions/period", "title": "" },
+    "weight": { "type": "number", "maximum": 100, "minimum": 0 },
+    "category": {
+      "enum": [1, 2],
+      "type": "number",
+      "default": 1,
+      "enumNames": ["Собственная", "Поставленная"]
+    },
+    "issuedBy": { "$ref": "#/definitions/person", "title": "" },
+    "delegate_to": {
+      "enum": ["100002", "100003", "100004"],
+      "type": "string",
+      "enumNames": ["Andrey V.", "Kristina D.", "Ivan L."]
+    },
+    "delegatedTo": { "$ref": "#/definitions/person", "title": "" },
+    "description": { "type": "string" },
+    "verifier_id": {
+      "enum": ["100001", "100002", "100003", "100004", "100005", "100006"],
+      "type": "string",
+      "enumNames": [
+        "Dmitry K.",
+        "Andrey V.",
+        "Kristina D.",
+        "Ivan L.",
+        "Galina B.",
+        "Artem K."
+      ]
+    },
+    "countingMethod": { "type": "string" }
+  },
+  "definitions": {
+    "period": {
+      "type": "object",
+      "properties": {
+        "to": { "type": "string", "format": "date" },
+        "from": { "type": "string", "format": "date" }
+      }
+    },
+    "person": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" }
+      }
+    }
+  }
+}
