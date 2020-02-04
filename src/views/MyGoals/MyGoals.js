@@ -396,7 +396,7 @@ const MyGoals = ({ user }) => {
       <Styled.DialogHeader>Редактирование цели</Styled.DialogHeader>
       <div className="dropdown-divider" />
       <Styled.ViewGoalContainer>
-        <Form
+        <Form noValidate
           schema={schemaData.entity_definitions[0].schema}
           uiSchema={
             uiSchemaData.ui_schemas.find(item => item.entity_state === 'edit')
