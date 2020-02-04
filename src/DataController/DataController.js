@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { WebSocketLink } from 'apollo-link-ws';
 import gql from 'graphql-tag';
-import { useSubscription } from '@apollo/react-hooks';
+import { useQuery, useSubscription } from '@apollo/react-hooks';
 
 const GOALS_SUBSCRIPTION = gql`
   subscription onGoalUpdate($id: String) {
@@ -13,31 +13,32 @@ const GOALS_SUBSCRIPTION = gql`
   }
 `;
 
-const DataController = ({user, myGoals, subGoals}) => {
-  let wsLink;
-  const onGoalsUpdate = ({client, subscriptionData}) => {
-  };
-  React.useEffect(() => {
-    if (user.isAuth) {
-      wsLink = new WebSocketLink({
-        uri: 'ws://scalaxi-graphql.herokuapp.com/graphql',
-        options: {
-          reconnect: true,
-          connectionParams: {
-              authToken: sessionStorage.getItem('accessToken')
-          },
-        }
-      });
+const GET_USERS = gql`
+  {
+    users {
+      id
+      fullName
     }
-  }, [user.isAuth]);
+  }
+`;
 
-  // useSubscription(GOALS_SUBSCRIPTION, {
-  //   onSubscriptionData: onGoalsUpdate,
-  //   variables: { id: user.id.toString() }
-  // });
+const DataController = ({ dispatch, user, myGoals, subGoals }) => {
+  const {
+    loading: usersLoading,
+    error: usersError,
+    data: usersData
+  } = useQuery(GET_USERS);
+
+  console.log('DataController', user);
+
+  React.useEffect(() => {
+    if (!usersLoading && usersData) {
+      dispatch({ type: 'ADD_USERS', users: usersData.users });
+    }
+  }, [usersLoading, usersData]);
 
   return null;
-}
+};
 
 const mapStateToProps = state => {
   return {

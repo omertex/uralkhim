@@ -529,7 +529,7 @@ const MyGoals = ({ user }) => {
   return (
     <Styled.Content>
       <Dialog isOpen={isDialogOpen} close={closeDialog}>
-        {!isLoading && isData && aside.visible && <NewGoalForm />}
+        {!isLoading && isData && <NewGoalForm />}
       </Dialog>
       <Dialog
         isOpen={isDelegateDialogOpen}
