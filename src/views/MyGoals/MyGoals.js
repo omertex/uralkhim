@@ -15,26 +15,6 @@ import {
   BtnPrimaryLarge,
   BtnSecondaryLarge
 } from '../../shared_components/Buttons/Buttons.styled';
-import { WebSocketLink } from 'apollo-link-ws';
-
-// export const GET_GOALS = gql`
-//   query getGoals($id: String) {
-//     goals(where: { delegated_to_id: { _eq: $id } }) {
-//       id
-//       category
-//       date_from
-//       date_to
-//       description
-//       goals_aggregate {
-//         aggregate {
-//           count
-//         }
-//       }
-//       weight
-//       state
-//     }
-//   }
-// `;
 
 export const GET_USERS = gql`
   {
@@ -98,6 +78,7 @@ const ADD_GOAL = gql`
     $date_from: date
     $date_to: date
     $description: String
+    $verifier_id: String
     $type: smallint
     $weight: smallint
   ) {
@@ -107,6 +88,7 @@ const ADD_GOAL = gql`
         date_from: $date_from
         date_to: $date_to
         description: $description
+        verifier_id: $verifier_id
         type: $type
         weight: $weight
       }
@@ -166,6 +148,7 @@ const UPDATE_GOAL = gql`
     $date_from: date
     $date_to: date
     $description: String
+    $verifier_id: String
     $type: smallint
     $weight: smallint
   ) {
@@ -176,6 +159,7 @@ const UPDATE_GOAL = gql`
         date_from: $date_from
         date_to: $date_to
         description: $description
+        verifier_id: $verifier_id
         type: $type
         weight: $weight
       }
@@ -215,12 +199,6 @@ const MyGoals = ({ user }) => {
     data: usersData
   } = useQuery(GET_USERS);
   console.log('usersData', usersData);
-
-  // const {
-  //   loading: goalsLoading,
-  //   error: goalsError,
-  //   data: goalsData
-  // } = useQuery(GET_GOALS, { variables: { id: user.id.toString() } });
 
   const {
     loading: goalsLoading,
@@ -262,7 +240,6 @@ const MyGoals = ({ user }) => {
     const properties = schemaData.entity_definitions[0].schema.properties;
     return properties[name].enumNames[idx - 1];
   };
-  const getVerifierName = (id) => usersData.users.find(user => user.id == id) && usersData.users.find(user => user.id == id).fullName || '';
 
   const showAside = idx => {
     setAside({ visible: true, idx, isCreating: false });
@@ -304,6 +281,7 @@ const MyGoals = ({ user }) => {
         date_from: formData.period.from,
         date_to: formData.period.to,
         description: formData.description,
+        verifier_id: formData.verifier_id,
         weight: +formData.weight
       }
     });
@@ -326,6 +304,7 @@ const MyGoals = ({ user }) => {
   };
   const onUpdateGoal = ({ formData }, event) => {
     event.preventDefault();
+    console.log('onUpdateGoal', formData.verifier_id);
     setIsEditDialogOpen(false);
     updateGoal({
       variables: {
@@ -334,6 +313,7 @@ const MyGoals = ({ user }) => {
         date_from: formData.period.from,
         date_to: formData.period.to,
         description: formData.description,
+        verifier_id: formData.verifier_id,
         type: formData.type,
         weight: formData.weight
       }
@@ -394,7 +374,7 @@ const MyGoals = ({ user }) => {
               from: goalsData.goals[aside.idx].date_from,
               to: goalsData.goals[aside.idx].date_to
             },
-            verifier_id: getVerifierName(goalsData.goals[aside.idx].verifier_id),
+            verifier_id: goalsData.goals[aside.idx].verifier_id,
             description: goalsData.goals[aside.idx].description,
             weight: goalsData.goals[aside.idx].weight
           }}
@@ -425,6 +405,7 @@ const MyGoals = ({ user }) => {
               from: goalsData.goals[aside.idx].date_from,
               to: goalsData.goals[aside.idx].date_to
             },
+            verifier_id: goalsData.goals[aside.idx].verifier_id,
             description: goalsData.goals[aside.idx].description,
             weight: goalsData.goals[aside.idx].weight
           }}
