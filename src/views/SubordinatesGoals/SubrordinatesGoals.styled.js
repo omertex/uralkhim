@@ -16,9 +16,9 @@ export const Header = styled.div`
 `;
 
 export const FullName = styled.div`
-    margin-top: 30px;
-    font-size: 18px;
-    font-weight: 600;
+  margin-top: 30px;
+  font-size: 18px;
+  font-weight: 600;
 `;
 
 export const Card = styled.div`
@@ -61,11 +61,16 @@ export const DialogContent = styled.div`
 
 export const DialogHeader = styled.span`
   font-size: 28px;
-  font-weight: 600;
+  line-height: 32px;
+  font-weight: bold;
+  margin: 40px 40px 28px;
 `;
 
 export const DialogForm = styled.div`
-  margin-top: 20px;
+  margin: 32px 40px;
+  fieldset {
+    padding: 0;
+  }
 `;
 
 export const DialogBtns = styled.div`

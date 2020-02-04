@@ -219,7 +219,7 @@ const MyGoals = ({ user }) => {
 
   const isData =
     goalsData &&
-    goalsData.goals.length &&
+    goalsData.goals &&
     schemaData &&
     schemaData.entity_definitions.length &&
     uiSchemaData &&
@@ -524,7 +524,7 @@ const MyGoals = ({ user }) => {
         isOpen={isEditDialogOpen}
         close={() => setIsEditDialogOpen(false)}
       >
-        {!isLoading && isData && <EditForm />}
+        {!isLoading && isData && isEditDialogOpen && <EditForm />}
       </Dialog>
       <Transition in={aside.visible} timeout={250}>
         {state => (

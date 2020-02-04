@@ -64,6 +64,7 @@ const ADD_GOAL = gql`
     $date_from: date
     $date_to: date
     $description: String
+    $delegate_to_id: String
     $type: smallint
     $weight: smallint
   ) {
@@ -73,6 +74,7 @@ const ADD_GOAL = gql`
         date_from: $date_from
         date_to: $date_to
         description: $description
+        delegated_to_id: $delegate_to_id
         type: $type
         weight: $weight
       }
@@ -89,7 +91,7 @@ export const GET_GOALS_UI_SCHEMA = gql`
     ui_schemas(
       where: {
         _and: {
-          entity_state: { _in: ["creating", "edit"] }
+          entity_state: { _in: ["creating", "edit", "creating_sub"] }
           entity_definition_id: { _eq: 1 }
         }
       }
@@ -149,6 +151,7 @@ const SubordinatesGoals = ({ user }) => {
     error: subordinatesError,
     data: subordinatesData
   } = useQuery(GET_SUBORDINATES, { variables: { id: user.id } });
+  console.log('subordinatesData', subordinatesData);
 
   const subsArray = subordinatesData.subordinates.map(item => item.id);
   const {
@@ -170,7 +173,6 @@ const SubordinatesGoals = ({ user }) => {
 
   const isData =
     goalsData &&
-    goalsData.goals.length &&
     schemaData &&
     schemaData.entity_definitions.length &&
     uiSchemaData &&
@@ -180,7 +182,7 @@ const SubordinatesGoals = ({ user }) => {
   if (isData) {
     goalsPerSub = goalsData.goals.reduce((acc, goal) => {
       if (goal.delegated_to.fullName in acc) {
-        acc[goal.delegated_to.fullName].push(goal)
+        acc[goal.delegated_to.fullName].push(goal);
       } else {
         acc[goal.delegated_to.fullName] = [goal];
       }
@@ -231,6 +233,7 @@ const SubordinatesGoals = ({ user }) => {
         date_from: formData.period.from,
         date_to: formData.period.to,
         description: formData.description,
+        delegate_to_id: formData.delegate_to,
         weight: +formData.weight
       }
     });
@@ -248,7 +251,7 @@ const SubordinatesGoals = ({ user }) => {
           schema={schemaData.entity_definitions[0].schema}
           uiSchema={
             uiSchemaData.ui_schemas.find(
-              item => item.entity_state === 'creating'
+              item => item.entity_state === 'creating_sub'
             ).schema
           }
           idPrefix={'new_'}
@@ -274,47 +277,47 @@ const SubordinatesGoals = ({ user }) => {
     const selectedGoal = goalsData.goals.find(goal => goal.id === aside.id);
     console.log('selectedGoal', selectedGoal);
     return (
-    <>
-      <Styled.ViewGoalContainer>
-        <div className="mt-3">
-          <Badge variant={selectedGoal.state} />
-        </div>
-        <div className="mt-3 mb-3 h2 font-weight-bold">
-          {selectedGoal.description}
-        </div>
-      </Styled.ViewGoalContainer>
-      <div className="dropdown-divider" />
-      <Styled.ViewGoalContainer>
-        <div className="font-weight-bold mb-2">Основная информация</div>
-        <Form
-          schema={schemaData.entity_definitions[0].schema}
-          uiSchema={
-            uiSchemaData.ui_schemas.find(item => item.entity_state === 'edit')
-              .schema
-          }
-          formData={{
-            category: selectedGoal.category,
-            period: {
-              from: selectedGoal.date_from,
-              to: selectedGoal.date_to
-            },
-            description: selectedGoal.description,
-            weight: selectedGoal.weight
-          }}
-          idPrefix={'view_'}
-          onSubmit={onUpdateGoal}
-        >
-          {<div />/*<BtnPrimary type="submit">Сохранить</BtnPrimary>*/}
-        </Form>
-      </Styled.ViewGoalContainer>
-    </>
-  );
-  }
+      <>
+        <Styled.ViewGoalContainer>
+          <div className="mt-3">
+            <Badge variant={selectedGoal.state} />
+          </div>
+          <div className="mt-3 mb-3 h2 font-weight-bold">
+            {selectedGoal.description}
+          </div>
+        </Styled.ViewGoalContainer>
+        <div className="dropdown-divider" />
+        <Styled.ViewGoalContainer>
+          <div className="font-weight-bold mb-2">Основная информация</div>
+          <Form
+            schema={schemaData.entity_definitions[0].schema}
+            uiSchema={
+              uiSchemaData.ui_schemas.find(item => item.entity_state === 'edit')
+                .schema
+            }
+            formData={{
+              category: selectedGoal.category,
+              period: {
+                from: selectedGoal.date_from,
+                to: selectedGoal.date_to
+              },
+              description: selectedGoal.description,
+              weight: selectedGoal.weight
+            }}
+            idPrefix={'view_'}
+            onSubmit={onUpdateGoal}
+          >
+            {<div /> /*<BtnPrimary type="submit">Сохранить</BtnPrimary>*/}
+          </Form>
+        </Styled.ViewGoalContainer>
+      </>
+    );
+  };
 
   return (
     <Styled.Content>
       <Dialog isOpen={isDialogOpen} close={closeDialog}>
-        {!isLoading && isData && aside.visible && <NewGoalForm />}
+        {!isLoading && isData && <NewGoalForm />}
       </Dialog>
       <Dialog
         isOpen={isDelegateDialogOpen}
@@ -330,11 +333,8 @@ const SubordinatesGoals = ({ user }) => {
         )}
       </Transition>
       <div className="h2 font-weight-bold">Цели подчиненных</div>
-
-      {!isLoading &&
-        isData &&
-        goalsPerSub &&
-        Object.keys(goalsPerSub).map((fullName) => (
+      {!isLoading && isData && goalsPerSub
+        ? Object.keys(goalsPerSub).map(fullName => (
             <div key={fullName}>
               <Styled.FullName>{fullName}</Styled.FullName>
               <Styled.Header>
@@ -349,21 +349,21 @@ const SubordinatesGoals = ({ user }) => {
                   <span className="col-2">
                     <Badge variant={goal.state} />
                   </span>
-                      <span className="col-3">{goal.description}</span>
-                      <Styled.TextBlueGray className="col-3">
-                        {getProperty({ name: 'category', idx: goal.category })}
-                      </Styled.TextBlueGray>
-                      <Styled.TextBlueGray className="col-3">
-                        {goal.delegated_to.fullName}
-                      </Styled.TextBlueGray>
-                      <span className="col-1 font-weight-bold text-right">
+                  <span className="col-3">{goal.description}</span>
+                  <Styled.TextBlueGray className="col-3">
+                    {getProperty({ name: 'category', idx: goal.category })}
+                  </Styled.TextBlueGray>
+                  <Styled.TextBlueGray className="col-3">
+                    {goal.delegated_to.fullName}
+                  </Styled.TextBlueGray>
+                  <span className="col-1 font-weight-bold text-right">
                     {goal.weight}%
                   </span>
-                    </Styled.Card>
+                </Styled.Card>
               ))}
             </div>
-        ))
-      }
+          ))
+        : null}
       <Styled.ButtonAdd onClick={showDialogCreate}>
         + Создать цель подчиненному
       </Styled.ButtonAdd>
