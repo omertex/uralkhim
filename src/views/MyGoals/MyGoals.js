@@ -79,6 +79,7 @@ const ADD_GOAL = gql`
     $date_to: date
     $description: String
     $verifier_id: String
+    $delegated_to_id: String
     $type: smallint
     $weight: smallint
   ) {
@@ -88,6 +89,7 @@ const ADD_GOAL = gql`
         date_from: $date_from
         date_to: $date_to
         description: $description
+        delegated_to_id: $delegated_to_id
         verifier_id: $verifier_id
         type: $type
         weight: $weight
@@ -274,6 +276,7 @@ const MyGoals = ({ user }) => {
   const onSubmit = ({ formData }, event) => {
     closeDialog();
     event.preventDefault();
+    console.log('addGoal', formData);
     addGoal({
       variables: {
         countingMethod: formData.countingMethod,
@@ -282,6 +285,7 @@ const MyGoals = ({ user }) => {
         date_to: formData.period.to,
         description: formData.description,
         verifier_id: formData.verifier_id,
+        delegated_to_id: formData.delegate_to_id && formData.delegate_to_id.toString() || user.id.toString(),
         weight: +formData.weight
       }
     });
