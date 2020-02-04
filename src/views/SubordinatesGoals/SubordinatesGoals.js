@@ -2,7 +2,7 @@ import React from 'react';
 import Aside from '../../shared_components/Aside/Aside';
 import { Transition } from 'react-transition-group';
 import gql from 'graphql-tag';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import {useQuery, useMutation, useSubscription} from '@apollo/react-hooks';
 import Form from 'react-jsonschema-form';
 import * as Styled from './SubrordinatesGoals.styled';
 import Badge from '../../shared_components/Badge/Badge';
@@ -18,15 +18,12 @@ import {
 } from '../../shared_components/Buttons/Buttons.styled';
 
 const GET_GOALS = gql`
-  query getSubs($subs: [String!]) {
+  subscription getSubs($subs: [String!]) {
     goals(where: { delegated_to_id: { _in: $subs } }) {
       id
       category
       description
-      delegated_to {
-        id
-        fullName
-      }
+      delegated_to_id
       weight
       state
     }
@@ -152,13 +149,14 @@ const SubordinatesGoals = ({ user }) => {
     data: subordinatesData
   } = useQuery(GET_SUBORDINATES, { variables: { id: user.id } });
   console.log('subordinatesData', subordinatesData);
-
   const subsArray = subordinatesData.subordinates.map(item => item.id);
+  console.log('subsArray', subsArray);
   const {
     loading: goalsLoading,
     error: goalsError,
     data: goalsData
-  } = useQuery(GET_GOALS, { variables: { subs: subsArray } });
+  } = useSubscription(GET_GOALS, { variables: { subs: subsArray } });
+  console.log('*****goalsData', goalsData);
 
   const {
     loading: schemaLoading,
@@ -181,10 +179,10 @@ const SubordinatesGoals = ({ user }) => {
   let goalsPerSub;
   if (isData) {
     goalsPerSub = goalsData.goals.reduce((acc, goal) => {
-      if (goal.delegated_to.fullName in acc) {
-        acc[goal.delegated_to.fullName].push(goal);
+      if (goal.delegated_to_id in acc) {
+        acc[goal.delegated_to_id].push(goal);
       } else {
-        acc[goal.delegated_to.fullName] = [goal];
+        acc[goal.delegated_to_id] = [goal];
       }
       return acc;
     }, {});
@@ -222,7 +220,7 @@ const SubordinatesGoals = ({ user }) => {
       }
     });
   };
-
+  const getSubName = (id) => subordinatesData.subordinates.find(item => item.id === id).fullName;
   const onSubmit = ({ formData }, event) => {
     closeDialog();
     event.preventDefault();
@@ -336,7 +334,7 @@ const SubordinatesGoals = ({ user }) => {
       {!isLoading && isData && goalsPerSub
         ? Object.keys(goalsPerSub).map(fullName => (
             <div key={fullName}>
-              <Styled.FullName>{fullName}</Styled.FullName>
+              <Styled.FullName>{getSubName(fullName)}</Styled.FullName>
               <Styled.Header>
                 <span className="col-2">Статус</span>
                 <span className="col-3">Название</span>
@@ -354,7 +352,7 @@ const SubordinatesGoals = ({ user }) => {
                     {getProperty({ name: 'category', idx: goal.category })}
                   </Styled.TextBlueGray>
                   <Styled.TextBlueGray className="col-3">
-                    {goal.delegated_to.fullName}
+                    {getSubName(goal.delegated_to_id)}
                   </Styled.TextBlueGray>
                   <span className="col-1 font-weight-bold text-right">
                     {goal.weight}%
