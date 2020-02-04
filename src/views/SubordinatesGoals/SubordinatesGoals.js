@@ -23,6 +23,7 @@ const GET_GOALS = gql`
       id
       category
       description
+      verification_method
       delegated_to_id
       weight
       state
@@ -142,6 +143,7 @@ const SubordinatesGoals = ({ user }) => {
   });
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDelegateDialogOpen, setIsDelegateDialogOpen] = React.useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
 
   const {
     loading: subordinatesLoading,
@@ -209,12 +211,15 @@ const SubordinatesGoals = ({ user }) => {
   };
   const onUpdateGoal = ({ formData }, event) => {
     event.preventDefault();
+    setIsEditDialogOpen(false);
     updateGoal({
       variables: {
-        goalId: goalsData.goals[aside.idx].id,
+        countingMethod: formData.countingMethod,
+        goalId: aside.id,
         date_from: formData.period.from,
         date_to: formData.period.to,
         description: formData.description,
+        verifier_id: formData.verifier_id,
         type: formData.type,
         weight: formData.weight
       }
@@ -239,6 +244,51 @@ const SubordinatesGoals = ({ user }) => {
   const closeDialog = () => {
     setIsDialogOpen(false);
   };
+
+  const EditForm = () => {
+    console.log('aside', aside);
+    console.log('goalsData.goals', goalsData.goals.find(goal => goal.id === aside.id));
+    const currentGoal = goalsData.goals.find(goal => goal.id === aside.id);
+    return (
+    <Styled.DialogContent>
+      <Styled.DialogHeader>Редактирование цели</Styled.DialogHeader>
+      <div className="dropdown-divider" />
+      <Styled.ViewGoalContainer>
+        <Form
+          schema={schemaData.entity_definitions[0].schema}
+          uiSchema={
+            uiSchemaData.ui_schemas.find(item => item.entity_state === 'edit')
+              .schema
+          }
+          formData={{
+            countingMethod: currentGoal.verification_method,
+            category: currentGoal.category,
+            period: {
+              from: currentGoal.date_from,
+              to: currentGoal.date_to
+            },
+            verifier_id: currentGoal.verifier_id,
+            description: currentGoal.description,
+            weight: currentGoal.weight
+          }}
+          idPrefix={'edit_'}
+          onSubmit={onUpdateGoal}
+        >
+          <Styled.DialogBtns>
+            <Styled.DialogCancel
+              type="button"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+              }}
+            >
+              Отмена
+            </Styled.DialogCancel>
+            <Styled.DialogSubmit type="submit">Сохранить</Styled.DialogSubmit>
+          </Styled.DialogBtns>
+        </Form>
+      </Styled.ViewGoalContainer>
+    </Styled.DialogContent>
+  );}
 
   const NewGoalForm = () => (
     <Styled.DialogContent>
@@ -283,6 +333,12 @@ const SubordinatesGoals = ({ user }) => {
           <div className="mt-3 mb-3 h2 font-weight-bold">
             {selectedGoal.description}
           </div>
+          <BtnPrimary
+            className="ml-3"
+            onClick={() => setIsEditDialogOpen(true)}
+          >
+            Редактировать
+          </BtnPrimary>
         </Styled.ViewGoalContainer>
         <div className="dropdown-divider" />
         <Styled.ViewGoalContainer>
@@ -323,6 +379,12 @@ const SubordinatesGoals = ({ user }) => {
           setIsDelegateDialogOpen(false);
         }}
       ></Dialog>
+      <Dialog
+        isOpen={isEditDialogOpen}
+        close={() => setIsEditDialogOpen(false)}
+      >
+        {!isLoading && isData && isEditDialogOpen && <EditForm />}
+      </Dialog>
       <Transition in={aside.visible} timeout={250}>
         {state => (
           <Aside close={closeAside} state={state}>
