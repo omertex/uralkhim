@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './App.scss';
-import ApolloContext from './ApolloContext/ApolloContext';
 import Normalize from 'react-normalize';
 import { Provider, connect } from 'react-redux';
 import store from './Redux/store';
-import DataController from './DataController/DataController';
+import DataClient from './DataClient/DataClient';
+import DataAPI from './DataAPI/DataAPI';
 
 const loading = () => (
   <div className="animated fadeIn pt-3 text-center">Loading...</div>
@@ -56,27 +56,27 @@ const SidebarFix = () => {
 };
 
 class App extends Component {
-  RouteAuthCheck = connect(state => ({ user: state.user }))(
-    ({ component: Component, user, ...rest }) => {
-      console.log('user', user);
-      return(
-
-      <Route
-        {...rest}
-        render={props =>
-          user.isAuth ? (
-            <ApolloContext>
-              {/*<DataController />*/}
-              <Component {...props} />
-            </ApolloContext>
-          ) : (
-            <Redirect
-              to={{ pathname: '/login', state: { from: props.location } }}
-            />
-          )
-        }
-      />
-    )}
+  RouteAuthCheck = connect(state => ({ isAuth: state.isAuth }))(
+    ({ component: Component, isAuth, ...rest }) => {
+      return (
+        <Route
+          {...rest}
+          render={props =>
+            isAuth ? (
+              <DataClient>
+                <DataAPI>
+                  <Component {...props} />
+                </DataAPI>
+              </DataClient>
+            ) : (
+              <Redirect
+                to={{ pathname: '/login', state: { from: props.location } }}
+              />
+            )
+          }
+        />
+      );
+    }
   );
 
   render() {

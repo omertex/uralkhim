@@ -38,7 +38,7 @@ class Login extends Component {
       'https://hasura.io/jwt/claims': { 'x-hasura-default-role': role }
     } = parsedToken;
     if (!err && loginInfo) {
-      this.props.dispatch({type: 'SET_USER', userId: loginInfo.userId, isAuth: true, role});
+      this.props.dispatch({type: 'SET_AUTH', userId: loginInfo.userId, isAuth: true, role});
       sessionStorage.setItem('accessToken', loginInfo.accessToken);
     }
   };
@@ -46,7 +46,7 @@ class Login extends Component {
   render() {
     return (
       <>
-        {this.props.user.isAuth && <Redirect to={{ pathname: '/' }} />}
+        {this.props.isAuth && <Redirect to={{ pathname: '/' }} />}
         <div className="app flex-row align-items-center">
           <Container>
             <Row className="justify-content-center">
@@ -95,11 +95,6 @@ class Login extends Component {
                               Вход
                             </Button>
                           </Col>
-                          {/*<Col xs="6" className="text-right">*/}
-                          {/*  <Button color="link" className="px-0">*/}
-                          {/*    Forgot password?*/}
-                          {/*  </Button>*/}
-                          {/*</Col>*/}
                         </Row>
                       </Form>
                     </CardBody>
@@ -118,6 +113,7 @@ Login.contextType = AuthContext;
 
 function mapStateToProps(state) {
   return {
+    isAuth: state.isAuth,
     user: state.user
   }
 }
